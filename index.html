@@ -10,7 +10,6 @@
             margin: 0;
             padding: 0;
             font-family: 'Kanit', sans-serif;
-            /* ใส่รูป Background ตรงนี้ */
             background-image: url('Comming Soon.png'); 
             background-size: cover;
             background-position: center;
@@ -18,7 +17,7 @@
             color: white;
         }
         .overlay {
-            background-color: rgba(0, 0, 0, 0.75); /* ทำให้พื้นหลังมืดลงนิดหน่อยเพื่อให้ฟอร์มเด่นขึ้น */
+            background-color: rgba(0, 0, 0, 0.8); 
             min-height: 100vh;
             display: flex;
             flex-direction: column;
@@ -30,49 +29,105 @@
             margin-bottom: 20px;
         }
         .header img {
-            max-width: 180px; /* ขนาดโลโก้ */
+            max-width: 150px;
             margin-bottom: 10px;
         }
         .header h1 {
             margin: 0;
             font-size: 32px;
             text-transform: uppercase;
-        }
-        .header p {
-            color: #ccc;
-            margin-top: 5px;
+            letter-spacing: 2px;
         }
         .form-container {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(8px);
+            background: rgba(20, 20, 20, 0.85);
+            backdrop-filter: blur(10px);
             padding: 30px;
-            border-radius: 12px;
-            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 16px;
+            border: 1px solid rgba(255,255,255,0.1);
             width: 100%;
-            max-width: 450px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            max-width: 480px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.7);
+            box-sizing: border-box;
+        }
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin: 20px 0 10px 0;
+            padding-bottom: 5px;
+            border-bottom: 2px solid #E62020;
+            color: #E62020;
         }
         label {
             font-size: 14px;
-            font-weight: 400;
-            margin-top: 15px;
+            margin-top: 12px;
             display: block;
+            color: #ddd;
         }
         input, select, textarea {
             width: 100%;
             padding: 12px;
             margin-top: 5px;
-            border: none;
+            border: 1px solid #444;
             border-radius: 6px;
             box-sizing: border-box;
             font-family: 'Kanit', sans-serif;
+            font-size: 15px;
+            background: #222;
+            color: white;
+        }
+        input:focus, select:focus, textarea:focus {
+            border-color: #E62020;
+            outline: none;
+        }
+        /* โซนข้อมูลธนาคารตามภาพตัวอย่าง */
+        .payment-box {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px dashed rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 10px;
+            text-align: center;
+        }
+        .bank-logo {
+            display: inline-block;
+            vertical-align: middle;
+            width: 24px;
+            height: 24px;
+            background-color: #00A950; /* สีเขียวกสิกร */
+            border-radius: 4px;
+            margin-right: 8px;
+        }
+        .bank-name {
             font-size: 16px;
-            background: rgba(255,255,255,0.9);
+            font-weight: 600;
+        }
+        .account-number {
+            font-size: 24px;
+            font-weight: 600;
+            color: #fff;
+            margin: 5px 0;
+            letter-spacing: 1px;
+        }
+        .account-owner {
+            font-size: 14px;
+            color: #aaa;
+        }
+        .file-upload-box {
+            border: 2px dashed #444;
+            padding: 15px;
+            text-align: center;
+            border-radius: 6px;
+            background: #1a1a1a;
+            cursor: pointer;
+            margin-top: 5px;
+        }
+        .file-upload-box:hover {
+            border-color: #E62020;
         }
         button {
             width: 100%;
             padding: 15px;
-            background-color: #E62020; /* สีแดงอ้างอิงจากป้าย BUY NOW */
+            background-color: #E62020;
             color: white;
             border: none;
             border-radius: 6px;
@@ -81,6 +136,7 @@
             cursor: pointer;
             margin-top: 25px;
             transition: background 0.3s;
+            text-transform: uppercase;
         }
         button:hover {
             background-color: #B31515;
@@ -90,13 +146,15 @@
 <body>
     <div class="overlay">
         <div class="header">
-            <img src="Oxyfight 1-1.png" alt="Oxyfight Foundation Logo">
+            <img src="Oxyfight 1-1.png" alt="Oxyfight Logo">
             <h1>Pre-order</h1>
-            <p>มูลนิธิอ็อกซี่ไฟต์ (Oxyfight Foundation)</p>
         </div>
 
         <div class="form-container">
             <form id="preorderForm">
+                
+                <div class="section-title">1. ข้อมูลผู้สั่งซื้อ</div>
+                
                 <label>ชื่อ-นามสกุล</label>
                 <input type="text" name="name" required placeholder="กรอกชื่อ-นามสกุล">
 
@@ -106,11 +164,11 @@
                 <label>ไซส์เสื้อ</label>
                 <select name="size" required>
                     <option value="">-- เลือกไซส์ --</option>
-                    <option value="S">S (รอบอก 32 นิ้ว)</option>
-                    <option value="M">M (รอบอก 36 นิ้ว)</option>
-                    <option value="L">L (รอบอก 40 นิ้ว)</option>
-                    <option value="XL">XL (รอบอก 44 นิ้ว)</option>
-                    <option value="2XL">2XL (รอบอก 48 นิ้ว)</option>
+                    <option value="S">S (รอบอก 32")</option>
+                    <option value="M">M (รอบอก 36")</option>
+                    <option value="L">L (รอบอก 40")</option>
+                    <option value="XL">XL (รอบอก 44")</option>
+                    <option value="2XL">2XL (รอบอก 48")</option>
                 </select>
 
                 <label>จำนวน (ตัว)</label>
@@ -119,7 +177,20 @@
                 <label>ที่อยู่สำหรับจัดส่ง</label>
                 <textarea name="address" rows="3" required placeholder="บ้านเลขที่, ซอย, ถนน, ตำบล, อำเภอ, จังหวัด, รหัสไปรษณีย์"></textarea>
 
-                <button type="submit" id="submitBtn">BUY NOW (ยืนยันการพรีออเดอร์)</button>
+                <div class="section-title">2. ดำเนินการโอนเงิน</div>
+                <div class="payment-box">
+                    <div>
+                        <span class="bank-logo"></span>
+                        <span class="bank-name">ธนาคารกสิกรไทย</span>
+                    </div>
+                    <div class="account-number">159-8-41521-4</div>
+                    <div class="account-owner">ชื่อบัญชี: หจก.โกลเด้นเจ็ท</div>
+                </div>
+
+                <label>แนบสลิปการโอนเงิน (จำกัดเฉพาะไฟล์รูปภาพ)</label>
+                <input type="file" id="slipInput" accept="image/*" required>
+
+                <button type="submit" id="submitBtn">เปย์ต่อ ไม่รอแล้วนะ 🚀</button>
             </form>
         </div>
     </div>
@@ -130,29 +201,63 @@
         form.addEventListener('submit', e => {
             e.preventDefault();
             
-            // !!! เอา URL จาก Google Apps Script มาใส่ในบรรทัดด้านล่างนี้ !!!
-            const scriptURL = 'https://script.google.com/a/macros/oxyfight.org/s/AKfycbwtRgEJ3v-S_bv9vdDltDUDxLpmNUh_LTnov-aH_Z3rAnjVamHTE5LbnqCrvWN5BGDs/exec'; 
+            // !!! นำ URL เว็บแอปของ Google Sheets มาใส่ที่นี่ !!!
+            const scriptURL = 'https://script.google.com/macros/s/AKfycbwtRgEJ3v-S_bv9vdDltDUDxLpmNUh_LTnov-aH_Z3rAnjVamHTE5LbnqCrvWN5BGDs/exec'; 
             
             const btn = document.getElementById('submitBtn');
-            btn.textContent = 'กำลังบันทึกข้อมูล...';
+            const fileInput = document.getElementById('slipInput');
+            
+            btn.textContent = 'กำลังส่งข้อมูลและอัปโหลดสลิป...';
             btn.disabled = true;
             btn.style.backgroundColor = '#666';
 
-            fetch(scriptURL, { method: 'POST', mode: 'no-cors', body: new FormData(form)})
-                .then(response => {
-                    alert('สั่งจองสำเร็จ! ขอบคุณที่สนับสนุนมูลนิธิอ็อกซี่ไฟต์ครับ');
-                    form.reset();
-                    btn.textContent = 'BUY NOW (ยืนยันการพรีออเดอร์)';
-                    btn.disabled = false;
-                    btn.style.backgroundColor = '#E62020';
-                })
-                .catch(error => {
-                    console.error('Error!', error.message);
-                    alert('เกิดข้อผิดพลาดในการส่งข้อมูล กรุณาลองใหม่อีกครั้ง');
-                    btn.textContent = 'BUY NOW (ยืนยันการพรีออเดอร์)';
-                    btn.disabled = false;
-                    btn.style.backgroundColor = '#E62020';
-                });
+            const formData = new FormData(form);
+            
+            // ตรวจสอบและแปลงไฟล์รูปภาพเป็น Base64 เพื่อส่งไปยัง Google Sheets
+            if(fileInput.files.length > 0) {
+                const file = fileInput.files[0];
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    const base64String = e.target.result;
+                    
+                    // เพิ่มข้อมูลไฟล์เข้าไปใน Parameter เพื่อส่งให้ Apps Script
+                    const params = new URLSearchParams();
+                    params.append('name', form.name.value);
+                    params.append('phone', form.phone.value);
+                    params.append('size', form.size.value);
+                    params.append('quantity', form.quantity.value);
+                    params.append('address', form.address.value);
+                    params.append('slipFile', base64String);
+                    params.append('slipFileName', file.name);
+                    params.append('slipMimeType', file.type);
+
+                    // ส่งข้อมูล
+                    fetch(scriptURL, { 
+                        method: 'POST', 
+                        body: params 
+                    })
+                    .then(response => response.text())
+                    .then(result => {
+                        alert('สั่งจองและแจ้งโอนเงินสำเร็จเรียบร้อยครับ! ขอบคุณครับ');
+                        form.reset();
+                        window.location.reload(); // รีเฟรชหน้าจอเพื่อล้างค่าไฟล์
+                    })
+                    .catch(error => {
+                        console.error('Error!', error);
+                        alert('เกิดข้อผิดพลาดในการส่งข้อมูล กรุณาลองใหม่อีกครั้ง');
+                        btn.textContent = 'เปย์ต่อ ไม่รอแล้วนะ 🚀';
+                        btn.disabled = false;
+                        btn.style.backgroundColor = '#E62020';
+                    });
+                };
+                reader.readAsDataURL(file);
+            } else {
+                alert('กรุณาแนบสลิปการโอนเงินด้วยครับ');
+                btn.textContent = 'เปย์ต่อ ไม่รอแล้วนะ 🚀';
+                btn.disabled = false;
+                btn.style.backgroundColor = '#E62020';
+            }
         });
     </script>
 </body>
