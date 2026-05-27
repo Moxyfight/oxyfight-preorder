@@ -80,6 +80,26 @@
             outline: none;
         }
         
+        /* สไตล์กล่องสำหรับจัดระเบียบช่องเลือกไซส์หลายตัว */
+        .size-selection-box {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 12px;
+            margin-top: 8px;
+        }
+        .size-row {
+            margin-bottom: 12px;
+        }
+        .size-row:last-child {
+            margin-bottom: 0;
+        }
+        .size-row span {
+            font-size: 13px;
+            color: #E62020;
+            font-weight: 600;
+        }
+
         /* ส่วนเลือกช่องทางการชำระเงิน */
         .payment-methods {
             display: flex;
@@ -103,11 +123,6 @@
             border-color: #E62020;
             background: rgba(230, 32, 32, 0.1);
             color: #fff;
-        }
-        .method-btn img {
-            height: 20px;
-            vertical-align: middle;
-            margin-right: 6px;
         }
 
         /* กล่องแสดงรายละเอียดข้อมูลธนาคาร / QR */
@@ -215,18 +230,12 @@
                 <label>เบอร์โทรศัพท์</label>
                 <input type="tel" name="phone" required placeholder="08X-XXX-XXXX">
 
-                <label>ไซส์เสื้อ</label>
-                <select name="size" id="sizeInput" required>
-                    <option value="">-- เลือกไซส์ --</option>
-                    <option value="S">S (รอบอก 38")</option>
-                    <option value="M">M (รอบอก 40")</option>
-                    <option value="L">L (รอบอก 42")</option>
-                    <option value="XL">XL (รอบอก 44")</option>
-                    <option value="2XL">2XL (รอบอก 46")</option>
-                </select>
-
-                <label>จำนวน (ตัว)</label>
+                <label>จำนวนเสื้อที่ต้องการสั่ง (ตัว)</label>
                 <input type="number" name="quantity" id="quantityInput" min="1" value="1" required>
+
+                <label>เลือกไซส์เสื้อแต่ละตัว</label>
+                <div class="size-selection-box" id="sizeContainer">
+                    </div>
 
                 <label>ที่อยู่สำหรับจัดส่ง</label>
                 <textarea name="address" rows="3" required placeholder="บ้านเลขที่, ซอย, ถนน, ตำบล, อำเภอ, จังหวัด, รหัสไปรษณีย์"></textarea>
@@ -250,7 +259,7 @@
                     <div id="promptpayDisplay" class="bank-info-display active">
                         <div style="font-weight:600; color:#4D94FF; margin-bottom:5px;">สแกนเพื่อจ่ายผ่านแอปธนาคาร</div>
                         <div id="qrContainer">
-                            <p style="font-size:13px; color:#aaa;">(กรุณาเลือกไซส์และจำนวนเงินระบบจะสร้าง QR อัตโนมัติ)</p>
+                            <p style="font-size:13px; color:#aaa;">(ระบบกำลังสร้าง QR อัตโนมัติ)</p>
                         </div>
                     </div>
 
@@ -273,27 +282,50 @@
     </div>
 
     <script>
-        // --- ⚙️ ตั้งค่าข้อมูลการเงินของคุณตรงนี้ ⚙️ ---
+        // --- ⚙️ ตรวจสอบข้อมูลการเงิน (อิงตามไฟล์ดั้งเดิมของคุณ) ⚙️ ---
         const PRICE_PER_SHIRT = 320; // ราคาเสื้อต่อตัว (บาท)
-        const PROMPTPAY_NUMBER = '1129701331742'; // ใส่เบอร์พร้อมเพย์ หรือ เลขบัตรปชช. ที่ผูกพร้อมเพย์ของคุณที่นี่เพื่อสร้าง QR
-        // ------------------------------------------
+        const PROMPTPAY_NUMBER = '1129701331742'; // หมายเลขพร้อมเพย์ของคุณ
+        // --------------------------------------------------------
 
         const form = document.getElementById('preorderForm');
-        const sizeInput = document.getElementById('sizeInput');
         const quantityInput = document.getElementById('quantityInput');
+        const sizeContainer = document.getElementById('sizeContainer');
         const totalPriceDisplay = document.getElementById('totalPriceDisplay');
         const qrContainer = document.getElementById('qrContainer');
         
         let currentMethod = 'promptpay';
         let currentTotal = 0;
 
-        // ฟังก์ชันคำนวณราคาสั่งซื้อรวม
-        function calculateTotal() {
-            if (sizeInput.value === "") {
-                currentTotal = 0;
-            } else {
-                currentTotal = parseInt(quantityInput.value) * PRICE_PER_SHIRT;
+        // ฟังก์ชันสร้างช่องระบุไซส์แยกตามจำนวนตัวแบบไดนามิก
+        function renderSizeFields() {
+            const qty = parseInt(quantityInput.value) || 1;
+            sizeContainer.innerHTML = ''; // ล้างอินพุตชุดเก่าออกก่อน
+
+            for (let i = 1; i <= qty; i++) {
+                const sizeRow = document.createElement('div');
+                sizeRow.className = 'size-row';
+                sizeRow.innerHTML = `
+                    <div style="margin-top: 8px;">
+                        <span>เสื้อตัวที่ ${i}:</span>
+                        <select class="shirt-size-select" required style="margin-top: 3px;">
+                            <option value="">-- เลือกไซส์สำหรับตัวที่ ${i} --</option>
+                            <option value="S">S (รอบอก 38")</option>
+                            <option value="M">M (รอบอก 40")</option>
+                            <option value="L">L (รอบอก 42")</option>
+                            <option value="XL">XL (รอบอก 44")</option>
+                            <option value="2XL">2XL (รอบอก 46")</option>
+                        </select>
+                    </div>
+                `;
+                sizeContainer.appendChild(sizeRow);
             }
+            calculateTotal();
+        }
+
+        // ฟังก์ชันคำนวณราคาสั่งซื้อรวมตามจำนวนตัว
+        function calculateTotal() {
+            const qty = parseInt(quantityInput.value) || 0;
+            currentTotal = qty * PRICE_PER_SHIRT;
             totalPriceDisplay.textContent = currentTotal.toLocaleString();
             generatePromptPayQR();
         }
@@ -301,10 +333,9 @@
         // ฟังก์ชันสร้าง QR Code พร้อมเพย์อัตโนมัติตามราคาที่คำนวณได้
         function generatePromptPayQR() {
             if (currentTotal <= 0) {
-                qrContainer.innerHTML = '<p style="font-size:13px; color:#aaa;">(กรุณาเลือกไซส์และจำนวนเงินระบบจะสร้าง QR อัตโนมัติ)</p>';
+                qrContainer.innerHTML = '<p style="font-size:13px; color:#aaa;">(กรุณาระบุจำนวนเพื่อสร้าง QR)</p>';
                 return;
             }
-            // ใช้ API ฟรีในการ Gen PromptPay QR Code แท้ที่สแกนจ่ายได้จริง
             const qrUrl = `https://promptpay.io/${PROMPTPAY_NUMBER}/${currentTotal}.png`;
             qrContainer.innerHTML = `<img src="${qrUrl}" class="qr-code-img" alt="Promptpay QR Code"><br><span style="font-size:12px; color:#aaa; display:block; margin-top:5px;">ยอดโอนอัตโนมัติ: ${currentTotal} บาท</span>`;
         }
@@ -326,11 +357,11 @@
             }
         }
 
-        // ตรวจจับการเปลี่ยนแปลงจำนวนและไซส์เสื้อเพื่ออัปเดตราคาและ QR Code
-        sizeInput.addEventListener('change', calculateTotal);
-        quantityInput.addEventListener('input', calculateTotal);
+        // สร้างช่องเลือกไซส์เริ่มต้นทันทีเมื่อโหลดหน้าเพจเสร็จ (เริ่มต้นที่ 1 ตัว)
+        window.addEventListener('DOMContentLoaded', renderSizeFields);
+        quantityInput.addEventListener('input', renderSizeFields);
 
-        // ระบบส่งฟอร์มข้อมูลไปยัง Google Sheets
+        // ระบบส่งฟอร์มข้อมูลไปยัง Google Sheets Web App
         form.addEventListener('submit', e => {
             e.preventDefault();
             
@@ -338,6 +369,16 @@
             const btn = document.getElementById('submitBtn');
             const fileInput = document.getElementById('slipInput');
             
+            // รวบรวมไซส์เสื้อจากทุกช่องย่อยมารวมกันเป็นข้อความเดียวส่งเข้าคอลัมน์ของชีต
+            const sizeSelects = document.querySelectorAll('.shirt-size-select');
+            let sizeSummary = [];
+            sizeSelects.forEach((select, index) => {
+                if(select.value) {
+                    sizeSummary.push(`ตัวที่ ${index+1}: ไซส์ ${select.value}`);
+                }
+            });
+            const finalSizeString = sizeSummary.join(', ');
+
             btn.textContent = 'กำลังส่งข้อมูลและอัปโหลดสลิป...';
             btn.disabled = true;
             btn.style.backgroundColor = '#666';
@@ -352,39 +393,7 @@
                     const params = new URLSearchParams();
                     params.append('name', form.name.value);
                     params.append('phone', form.phone.value);
-                    params.append('size', form.size.value);
-                    params.append('quantity', form.quantity.value);
+                    params.append('size', finalSizeString); // ส่งผลลัพธ์การคละไซส์สรุปรวมไปที่หัวข้อ "size"
+                    params.append('quantity', quantityInput.value);
                     params.append('address', form.address.value);
-                    params.append('slipFile', base64String);
-                    params.append('slipFileName', file.name);
-                    params.append('slipMimeType', file.type);
-
-                    fetch(scriptURL, { 
-                        method: 'POST', 
-                        body: params 
-                    })
-                    .then(response => response.text())
-                    .then(result => {
-                        alert('สั่งจองและแจ้งโอนเงินสำเร็จเรียบร้อยครับ! ขอบคุณครับ');
-                        form.reset();
-                        window.location.reload();
-                    })
-                    .catch(error => {
-                        console.error('Error!', error);
-                        alert('เกิดข้อผิดพลาดในการส่งข้อมูล กรุณาลองใหม่อีกครั้ง');
-                        btn.textContent = 'ดำเนินการสั่งจองสินค้า';
-                        btn.disabled = false;
-                        btn.style.backgroundColor = '#E62020';
-                    });
-                };
-                reader.readAsDataURL(file);
-            } else {
-                alert('กรุณาแนบสลิปการโอนเงินด้วยครับ');
-                btn.textContent = 'ดำเนินการสั่งจองสินค้า';
-                btn.disabled = false;
-                btn.style.backgroundColor = '#E62020';
-            }
-        });
-    </script>
-</body>
-</html>
+                    params.append('slipFile
