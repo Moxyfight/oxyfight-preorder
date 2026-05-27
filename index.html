@@ -79,28 +79,69 @@
             border-color: #E62020;
             outline: none;
         }
-        /* โซนข้อมูลธนาคารตามภาพตัวอย่าง */
-        .payment-box {
+        
+        /* ส่วนเลือกช่องทางการชำระเงิน */
+        .payment-methods {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .method-btn {
+            flex: 1;
+            background: #111;
+            border: 1px solid #444;
+            padding: 12px 5px;
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: center;
+            color: #aaa;
+            font-family: 'Kanit', sans-serif;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        .method-btn.active {
+            border-color: #E62020;
+            background: rgba(230, 32, 32, 0.1);
+            color: #fff;
+        }
+        .method-btn img {
+            height: 20px;
+            vertical-align: middle;
+            margin-right: 6px;
+        }
+
+        /* กล่องแสดงรายละเอียดข้อมูลธนาคาร / QR */
+        .payment-details-box {
             background: rgba(255, 255, 255, 0.05);
             border: 1px dashed rgba(255, 255, 255, 0.2);
             border-radius: 8px;
             padding: 15px;
-            margin-top: 10px;
+            margin-top: 15px;
             text-align: center;
         }
-        .bank-logo {
+        .bank-info-display {
+            display: none;
+        }
+        .bank-info-display.active {
+            display: block;
+        }
+        
+        /* สไตล์ไอคอนธนาคารกสิกรไทย */
+        .kbank-icon {
             display: inline-block;
-            vertical-align: middle;
             width: 24px;
             height: 24px;
-            background-color: #00A950; /* สีเขียวกสิกร */
-            border-radius: 4px;
-            margin-right: 8px;
+            background-color: #00A950;
+            color: white;
+            font-weight: bold;
+            font-size: 14px;
+            line-height: 24px;
+            text-align: center;
+            border-radius: 50%;
+            margin-right: 6px;
+            vertical-align: middle;
         }
-        .bank-name {
-            font-size: 16px;
-            font-weight: 600;
-        }
+        
         .account-number {
             font-size: 24px;
             font-weight: 600;
@@ -112,19 +153,32 @@
             font-size: 14px;
             color: #aaa;
         }
-        .file-upload-box {
-            border: 2px dashed #444;
-            padding: 15px;
+
+        /* โซนแสดงราคาสรุป */
+        .price-summary-box {
+            background: rgba(230, 32, 32, 0.15);
+            border: 1px solid #E62020;
+            border-radius: 8px;
+            padding: 12px;
+            margin-top: 15px;
             text-align: center;
-            border-radius: 6px;
-            background: #1a1a1a;
-            cursor: pointer;
-            margin-top: 5px;
+            font-size: 18px;
+            font-weight: 600;
         }
-        .file-upload-box:hover {
-            border-color: #E62020;
+        .price-amount {
+            color: #FF4D4D;
+            font-size: 24px;
+            margin: 0 5px;
         }
-        button {
+
+        .qr-code-img {
+            max-width: 200px;
+            margin-top: 10px;
+            border: 5px solid white;
+            border-radius: 4px;
+        }
+
+        button.submit-btn {
             width: 100%;
             padding: 15px;
             background-color: #E62020;
@@ -138,7 +192,7 @@
             transition: background 0.3s;
             text-transform: uppercase;
         }
-        button:hover {
+        button.submit-btn:hover {
             background-color: #B31515;
         }
     </style>
@@ -162,7 +216,7 @@
                 <input type="tel" name="phone" required placeholder="08X-XXX-XXXX">
 
                 <label>ไซส์เสื้อ</label>
-                <select name="size" required>
+                <select name="size" id="sizeInput" required>
                     <option value="">-- เลือกไซส์ --</option>
                     <option value="S">S (รอบอก 32")</option>
                     <option value="M">M (รอบอก 36")</option>
@@ -172,48 +226,122 @@
                 </select>
 
                 <label>จำนวน (ตัว)</label>
-                <input type="number" name="quantity" min="1" value="1" required>
+                <input type="number" name="quantity" id="quantityInput" min="1" value="1" required>
 
                 <label>ที่อยู่สำหรับจัดส่ง</label>
                 <textarea name="address" rows="3" required placeholder="บ้านเลขที่, ซอย, ถนน, ตำบล, อำเภอ, จังหวัด, รหัสไปรษณีย์"></textarea>
 
-                <div class="section-title">2. ดำเนินการโอนเงิน</div>
-                <div class="payment-box">
-                    <div>
-                        <span class="bank-logo"></span>
-                        <span class="bank-name">ธนาคารกสิกรไทย</span>
-                    </div>
-                    <div class="account-number">159-8-41521-4</div>
-                    <div class="account-owner">ชื่อบัญชี: หจก.โกลเด้นเจ็ท</div>
+                <div class="price-summary-box">
+                    ยอดเงินรวมที่ต้องชำระ: <span class="price-amount" id="totalPriceDisplay">0</span> บาท
                 </div>
 
-                <label>แนบสลิปการโอนเงิน (จำกัดเฉพาะไฟล์รูปภาพ)</label>
+                <div class="section-title">2. ดำเนินการโอนเงิน</div>
+                
+                <div class="payment-methods">
+                    <div class="method-btn active" id="btnPromptpay" onclick="selectPayment('promptpay')">
+                        พร้อมเพย์ (QR Code)
+                    </div>
+                    <div class="method-btn" id="btnBank" onclick="selectPayment('bank')">
+                        <span class="kbank-icon">K</span> บัญชีธนาคาร
+                    </div>
+                </div>
+
+                <div class="payment-details-box">
+                    <div id="promptpayDisplay" class="bank-info-display active">
+                        <div style="font-weight:600; color:#4D94FF; margin-bottom:5px;">สแกนเพื่อจ่ายผ่านแอปธนาคาร</div>
+                        <div id="qrContainer">
+                            <p style="font-size:13px; color:#aaa;">(กรุณาเลือกไซส์และจำนวนเงินระบบจะสร้าง QR อัตโนมัติ)</p>
+                        </div>
+                    </div>
+
+                    <div id="bankDisplay" class="bank-info-display">
+                        <div>
+                            <span class="kbank-icon">K</span>
+                            <span style="font-size:16px; font-weight:600; color:#00A950;">ธนาคารกสิกรไทย</span>
+                        </div>
+                        <div class="account-number">131-8-080-21-2</div>
+                        <div class="account-owner">ชื่อบัญชี: นายปยุต ปิ่นรักษา</div>
+                    </div>
+                </div>
+
+                <label style="margin-top:20px;">แนบสลิปการโอนเงิน (จำกัดเฉพาะไฟล์รูปภาพ)</label>
                 <input type="file" id="slipInput" accept="image/*" required>
 
-                <button type="submit" id="submitBtn">เปย์ต่อ ไม่รอแล้วนะ 🚀</button>
+                <button type="submit" class="submit-btn" id="submitBtn">ดำเนินการสั่งจองสินค้า</button>
             </form>
         </div>
     </div>
 
     <script>
+        // --- ⚙️ ตั้งค่าข้อมูลการเงินของคุณตรงนี้ ⚙️ ---
+        const PRICE_PER_SHIRT = 350; // ราคาเสื้อต่อตัว (บาท)
+        const PROMPTPAY_NUMBER = '1129701331742'; // ใส่เบอร์พร้อมเพย์ หรือ เลขบัตรปชช. ที่ผูกพร้อมเพย์ของคุณที่นี่เพื่อสร้าง QR
+        // ------------------------------------------
+
         const form = document.getElementById('preorderForm');
+        const sizeInput = document.getElementById('sizeInput');
+        const quantityInput = document.getElementById('quantityInput');
+        const totalPriceDisplay = document.getElementById('totalPriceDisplay');
+        const qrContainer = document.getElementById('qrContainer');
         
+        let currentMethod = 'promptpay';
+        let currentTotal = 0;
+
+        // ฟังก์ชันคำนวณราคาสั่งซื้อรวม
+        function calculateTotal() {
+            if (sizeInput.value === "") {
+                currentTotal = 0;
+            } else {
+                currentTotal = parseInt(quantityInput.value) * PRICE_PER_SHIRT;
+            }
+            totalPriceDisplay.textContent = currentTotal.toLocaleString();
+            generatePromptPayQR();
+        }
+
+        // ฟังก์ชันสร้าง QR Code พร้อมเพย์อัตโนมัติตามราคาที่คำนวณได้
+        function generatePromptPayQR() {
+            if (currentTotal <= 0) {
+                qrContainer.innerHTML = '<p style="font-size:13px; color:#aaa;">(กรุณาเลือกไซส์และจำนวนเงินระบบจะสร้าง QR อัตโนมัติ)</p>';
+                return;
+            }
+            // ใช้ API ฟรีในการ Gen PromptPay QR Code แท้ที่สแกนจ่ายได้จริง
+            const qrUrl = `https://promptpay.io/${PROMPTPAY_NUMBER}/${currentTotal}.png`;
+            qrContainer.innerHTML = `<img src="${qrUrl}" class="qr-code-img" alt="Promptpay QR Code"><br><span style="font-size:12px; color:#aaa; display:block; margin-top:5px;">ยอดโอนอัตโนมัติ: ${currentTotal} บาท</span>`;
+        }
+
+        // ฟังก์ชันสลับแท็บช่องทางชำระเงิน
+        function selectPayment(method) {
+            currentMethod = method;
+            document.getElementById('btnPromptpay').classList.remove('active');
+            document.getElementById('btnBank').classList.remove('active');
+            document.getElementById('promptpayDisplay').classList.remove('active');
+            document.getElementById('bankDisplay').classList.remove('active');
+
+            if (method === 'promptpay') {
+                document.getElementById('btnPromptpay').classList.add('active');
+                document.getElementById('promptpayDisplay').classList.add('active');
+            } else {
+                document.getElementById('btnBank').classList.add('active');
+                document.getElementById('bankDisplay').classList.add('active');
+            }
+        }
+
+        // ตรวจจับการเปลี่ยนแปลงจำนวนและไซส์เสื้อเพื่ออัปเดตราคาและ QR Code
+        sizeInput.addEventListener('change', calculateTotal);
+        quantityInput.addEventListener('input', calculateTotal);
+
+        // ระบบส่งฟอร์มข้อมูลไปยัง Google Sheets
         form.addEventListener('submit', e => {
             e.preventDefault();
             
-            // !!! นำ URL เว็บแอปของ Google Sheets มาใส่ที่นี่ !!!
             const scriptURL = 'https://script.google.com/macros/s/AKfycbwtRgEJ3v-S_bv9vdDltDUDxLpmNUh_LTnov-aH_Z3rAnjVamHTE5LbnqCrvWN5BGDs/exec'; 
-            
             const btn = document.getElementById('submitBtn');
             const fileInput = document.getElementById('slipInput');
             
             btn.textContent = 'กำลังส่งข้อมูลและอัปโหลดสลิป...';
             btn.disabled = true;
             btn.style.backgroundColor = '#666';
-
-            const formData = new FormData(form);
             
-            // ตรวจสอบและแปลงไฟล์รูปภาพเป็น Base64 เพื่อส่งไปยัง Google Sheets
             if(fileInput.files.length > 0) {
                 const file = fileInput.files[0];
                 const reader = new FileReader();
@@ -221,7 +349,6 @@
                 reader.onload = function(e) {
                     const base64String = e.target.result;
                     
-                    // เพิ่มข้อมูลไฟล์เข้าไปใน Parameter เพื่อส่งให้ Apps Script
                     const params = new URLSearchParams();
                     params.append('name', form.name.value);
                     params.append('phone', form.phone.value);
@@ -232,7 +359,6 @@
                     params.append('slipFileName', file.name);
                     params.append('slipMimeType', file.type);
 
-                    // ส่งข้อมูล
                     fetch(scriptURL, { 
                         method: 'POST', 
                         body: params 
@@ -241,12 +367,12 @@
                     .then(result => {
                         alert('สั่งจองและแจ้งโอนเงินสำเร็จเรียบร้อยครับ! ขอบคุณครับ');
                         form.reset();
-                        window.location.reload(); // รีเฟรชหน้าจอเพื่อล้างค่าไฟล์
+                        window.location.reload();
                     })
                     .catch(error => {
                         console.error('Error!', error);
                         alert('เกิดข้อผิดพลาดในการส่งข้อมูล กรุณาลองใหม่อีกครั้ง');
-                        btn.textContent = 'เปย์ต่อ ไม่รอแล้วนะ 🚀';
+                        btn.textContent = 'ดำเนินการสั่งจองสินค้า';
                         btn.disabled = false;
                         btn.style.backgroundColor = '#E62020';
                     });
@@ -254,7 +380,7 @@
                 reader.readAsDataURL(file);
             } else {
                 alert('กรุณาแนบสลิปการโอนเงินด้วยครับ');
-                btn.textContent = 'เปย์ต่อ ไม่รอแล้วนะ 🚀';
+                btn.textContent = 'ดำเนินการสั่งจองสินค้า';
                 btn.disabled = false;
                 btn.style.backgroundColor = '#E62020';
             }
