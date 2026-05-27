@@ -149,4 +149,212 @@
             background-color: #00A950;
             color: white;
             font-weight: bold;
-            font-size: 14px
+            font-size: 14px;
+            line-height: 24px;
+            text-align: center;
+            border-radius: 50%;
+            margin-right: 6px;
+            vertical-align: middle;
+        }
+        
+        .account-number {
+            font-size: 24px;
+            font-weight: 600;
+            color: #fff;
+            margin: 5px 0;
+            letter-spacing: 1px;
+        }
+        .account-owner {
+            font-size: 14px;
+            color: #aaa;
+        }
+
+        /* โซนแสดงราคาสรุป */
+        .price-summary-box {
+            background: rgba(230, 32, 32, 0.15);
+            border: 1px solid #E62020;
+            border-radius: 8px;
+            padding: 12px;
+            margin-top: 15px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: 600;
+        }
+        .price-amount {
+            color: #FF4D4D;
+            font-size: 24px;
+            margin: 0 5px;
+        }
+
+        .qr-code-img {
+            max-width: 200px;
+            margin-top: 10px;
+            border: 5px solid white;
+            border-radius: 4px;
+        }
+
+        button.submit-btn {
+            width: 100%;
+            padding: 15px;
+            background-color: #E62020;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 25px;
+            transition: background 0.3s;
+            text-transform: uppercase;
+        }
+        button.submit-btn:hover {
+            background-color: #B31515;
+        }
+    </style>
+</head>
+<body>
+    <div class="overlay">
+        <div class="header">
+            <img src="Oxyfight 1-1.png" alt="Oxyfight Logo">
+            <h1>Pre-order</h1>
+        </div>
+
+        <div class="form-container">
+            <form id="preorderForm">
+                
+                <div class="section-title">1. ข้อมูลผู้สั่งซื้อ</div>
+                
+                <label>ชื่อ-นามสกุล</label>
+                <input type="text" name="name" required placeholder="กรอกชื่อ-นามสกุล">
+
+                <label>เบอร์โทรศัพท์</label>
+                <input type="tel" name="phone" required placeholder="08X-XXX-XXXX">
+
+                <label>จำนวนเสื้อที่ต้องการสั่ง (ตัว)</label>
+                <input type="number" name="quantity" id="quantityInput" min="1" value="1" required>
+
+                <label>เลือกไซส์เสื้อแต่ละตัว</label>
+                <div class="size-selection-box" id="sizeContainer">
+                    </div>
+
+                <label>ที่อยู่สำหรับจัดส่ง</label>
+                <textarea name="address" rows="3" required placeholder="บ้านเลขที่, ซอย, ถนน, ตำบล, อำเภอ, จังหวัด, รหัสไปรษณีย์"></textarea>
+
+                <div class="price-summary-box">
+                    ยอดเงินรวมที่ต้องชำระ: <span class="price-amount" id="totalPriceDisplay">0</span> บาท
+                </div>
+
+                <div class="section-title">2. ดำเนินการโอนเงิน</div>
+                
+                <div class="payment-methods">
+                    <div class="method-btn active" id="btnPromptpay" onclick="selectPayment('promptpay')">
+                        พร้อมเพย์ (QR Code)
+                    </div>
+                    <div class="method-btn" id="btnBank" onclick="selectPayment('bank')">
+                        <span class="kbank-icon">K</span> บัญชีธนาคาร
+                    </div>
+                </div>
+
+                <div class="payment-details-box">
+                    <div id="promptpayDisplay" class="bank-info-display active">
+                        <div style="font-weight:600; color:#4D94FF; margin-bottom:5px;">สแกนเพื่อจ่ายผ่านแอปธนาคาร</div>
+                        <div id="qrContainer">
+                            <p style="font-size:13px; color:#aaa;">(ระบบกำลังสร้าง QR อัตโนมัติ)</p>
+                        </div>
+                    </div>
+
+                    <div id="bankDisplay" class="bank-info-display">
+                        <div>
+                            <span class="kbank-icon">K</span>
+                            <span style="font-size:16px; font-weight:600; color:#00A950;">ธนาคารกสิกรไทย</span>
+                        </div>
+                        <div class="account-number">1598415214</div>
+                        <div class="account-owner">ชื่อบัญชี: หจก.โกลเด้นเจ็ท</div>
+                    </div>
+                </div>
+
+                <label style="margin-top:20px;">แนบสลิปการโอนเงิน (จำกัดเฉพาะไฟล์รูปภาพ)</label>
+                <input type="file" id="slipInput" accept="image/*" required>
+
+                <button type="submit" class="submit-btn" id="submitBtn">ดำเนินการสั่งจองสินค้า</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // --- ⚙️ ตั้งค่าข้อมูลการเงินของคุณตรงนี้ ⚙️ ---
+        const PRICE_PER_SHIRT = 320; // ราคาเสื้อต่อตัว (บาท)
+        const PROMPTPAY_NUMBER = '1129701331742'; // หมายเลขพร้อมเพย์ของคุณ
+        // --------------------------------------------------------
+
+        const form = document.getElementById('preorderForm');
+        const quantityInput = document.getElementById('quantityInput');
+        const sizeContainer = document.getElementById('sizeContainer');
+        const totalPriceDisplay = document.getElementById('totalPriceDisplay');
+        const qrContainer = document.getElementById('qrContainer');
+        
+        let currentMethod = 'promptpay';
+        let currentTotal = 0;
+
+        // ฟังก์ชันสร้างช่องระบุไซส์แยกตามจำนวนตัวแบบไดนามิก
+        function renderSizeFields() {
+            const qty = parseInt(quantityInput.value) || 1;
+            sizeContainer.innerHTML = ''; // ล้างอินพุตชุดเก่าออกก่อน
+
+            for (let i = 1; i <= qty; i++) {
+                const sizeRow = document.createElement('div');
+                sizeRow.className = 'size-row';
+                sizeRow.innerHTML = `
+                    <div style="margin-top: 8px;">
+                        <span>เสื้อตัวที่ ${i}:</span>
+                        <select class="shirt-size-select" required style="margin-top: 3px;">
+                            <option value="">-- เลือกไซส์สำหรับตัวที่ ${i} --</option>
+                            <option value="S">S (รอบอก 38")</option>
+                            <option value="M">M (รอบอก 40")</option>
+                            <option value="L">L (รอบอก 42")</option>
+                            <option value="XL">XL (รอบอก 44")</option>
+                            <option value="2XL">2XL (รอบอก 46")</option>
+                        </select>
+                    </div>
+                `;
+                sizeContainer.appendChild(sizeRow);
+            }
+            calculateTotal();
+        }
+
+        // ฟังก์ชันคำนวณราคาสั่งซื้อรวมตามจำนวนตัว
+        function calculateTotal() {
+            const qty = parseInt(quantityInput.value) || 0;
+            currentTotal = qty * PRICE_PER_SHIRT;
+            totalPriceDisplay.textContent = currentTotal.toLocaleString();
+            generatePromptPayQR();
+        }
+
+        // ฟังก์ชันสร้าง QR Code พร้อมเพย์อัตโนมัติตามราคาที่คำนวณได้
+        function generatePromptPayQR() {
+            if (currentTotal <= 0) {
+                qrContainer.innerHTML = '<p style="font-size:13px; color:#aaa;">(กรุณาระบุจำนวนเพื่อสร้าง QR)</p>';
+                return;
+            }
+            const qrUrl = `https://promptpay.io/${PROMPTPAY_NUMBER}/${currentTotal}.png`;
+            qrContainer.innerHTML = `<img src="${qrUrl}" class="qr-code-img" alt="Promptpay QR Code"><br><span style="font-size:12px; color:#aaa; display:block; margin-top:5px;">ยอดโอนอัตโนมัติ: ${currentTotal} บาท</span>`;
+        }
+
+        // ฟังก์ชันสลับแท็บช่องทางชำระเงิน
+        function selectPayment(method) {
+            currentMethod = method;
+            document.getElementById('btnPromptpay').classList.remove('active');
+            document.getElementById('btnBank').classList.remove('active');
+            document.getElementById('promptpayDisplay').classList.remove('active');
+            document.getElementById('bankDisplay').classList.remove('active');
+
+            if (method === 'promptpay') {
+                document.getElementById('btnPromptpay').classList.add('active');
+                document.getElementById('promptpayDisplay').classList.add('active');
+            } else {
+                document.getElementById('btnBank').classList.add('active');
+                document.getElementById('bankDisplay').classList.add('active');
+            }
+        }
+
+        // สร้างช่องเลือกไซส์เริ่มต้นทันทีเมื่อโหลดหน้าเพจเสร็จ (เริ่มต้นที่ 1 ตัว)
