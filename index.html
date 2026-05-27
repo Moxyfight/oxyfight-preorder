@@ -23,6 +23,7 @@
             flex-direction: column;
             align-items: center;
             padding: 40px 20px;
+            box-sizing: border-box;
         }
         .header {
             text-align: center;
@@ -38,7 +39,62 @@
             text-transform: uppercase;
             letter-spacing: 2px;
         }
+
+        /* ⏳ สไตล์หน้าจอนับถอยหลัง (Countdown) */
+        #countdown-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: rgba(20, 20, 20, 0.85);
+            backdrop-filter: blur(10px);
+            padding: 40px 30px;
+            border-radius: 16px;
+            border: 1px solid rgba(255,255,255,0.1);
+            width: 100%;
+            max-width: 480px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.7);
+            box-sizing: border-box;
+            text-align: center;
+            margin-top: 20px;
+        }
+        .countdown-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #E62020;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 20px;
+        }
+        .timer-grid {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+        .timer-box {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            min-width: 70px;
+        }
+        .timer-number {
+            font-size: 32px;
+            font-weight: 600;
+            color: #fff;
+            display: block;
+            line-height: 1;
+        }
+        .timer-label {
+            font-size: 12px;
+            color: #aaa;
+            margin-top: 5px;
+            display: block;
+        }
+
+        /* 📋 สไตล์ฟอร์มสั่งซื้อ (จะถูกซ่อนไว้เริ่มต้น) */
         .form-container {
+            display: none; /* ซ่อนไว้ก่อนจนกว่าจะถึงเวลา */
             background: rgba(20, 20, 20, 0.85);
             backdrop-filter: blur(10px);
             padding: 30px;
@@ -80,7 +136,6 @@
             outline: none;
         }
         
-        /* สไตล์กล่องระบุไซส์เสื้อ */
         .size-selection-box {
             background: rgba(255, 255, 255, 0.03);
             border: 1px solid #333;
@@ -100,7 +155,6 @@
             font-weight: 600;
         }
 
-        /* ส่วนเลือกช่องทางการชำระเงิน */
         .payment-methods {
             display: flex;
             gap: 10px;
@@ -125,7 +179,6 @@
             color: #fff;
         }
 
-        /* กล่องแสดงรายละเอียดข้อมูลธนาคาร / QR */
         .payment-details-box {
             background: rgba(255, 255, 255, 0.05);
             border: 1px dashed rgba(255, 255, 255, 0.2);
@@ -141,7 +194,6 @@
             display: block;
         }
         
-        /* สไตล์ไอคอนธนาคารกสิกรไทย */
         .kbank-icon {
             display: inline-block;
             width: 24px;
@@ -169,7 +221,6 @@
             color: #aaa;
         }
 
-        /* โซนแสดงราคาสรุป */
         .price-summary-box {
             background: rgba(230, 32, 32, 0.15);
             border: 1px solid #E62020;
@@ -219,9 +270,18 @@
             <h1>Pre-order</h1>
         </div>
 
-        <div class="form-container">
+        <div id="countdown-container">
+            <div class="countdown-title">🚀 ระบบเปิดสั่งจองล่วงหน้าในอีก</div>
+            <div class="timer-grid">
+                <div class="timer-box"><span class="timer-number" id="days">00</span><span class="timer-label">วัน</span></div>
+                <div class="timer-box"><span class="timer-number" id="hours">00</span><span class="timer-label">ชม.</span></div>
+                <div class="timer-box"><span class="timer-number" id="minutes">00</span><span class="timer-label">นาที</span></div>
+                <div class="timer-box"><span class="timer-number" id="seconds">00</span><span class="timer-label">วิ</span></div>
+            </div>
+        </div>
+
+        <div class="form-container" id="mainFormContainer">
             <form id="preorderForm">
-                
                 <div class="section-title">1. ข้อมูลผู้สั่งซื้อ</div>
                 
                 <label>ชื่อ-นามสกุล</label>
@@ -234,8 +294,7 @@
                 <input type="number" name="quantity" id="quantityInput" min="1" value="1" required>
 
                 <label>เลือกไซส์เสื้อแต่ละตัว</label>
-                <div class="size-selection-box" id="sizeContainer">
-                    </div>
+                <div class="size-selection-box" id="sizeContainer"></div>
 
                 <label>ที่อยู่สำหรับจัดส่ง</label>
                 <textarea name="address" rows="3" required placeholder="บ้านเลขที่, ซอย, ถนน, ตำบล, อำเภอ, จังหวัด, รหัสไปรษณีย์"></textarea>
@@ -282,9 +341,13 @@
     </div>
 
     <script>
-        // --- ⚙️ ตั้งค่าข้อมูลการเงินของคุณตรงนี้ ⚙️ ---
-        const PRICE_PER_SHIRT = 320; // ราคาเสื้อต่อตัว (บาท)
-        const PROMPTPAY_NUMBER = '1129701331742'; // หมายเลขพร้อมเพย์ของคุณ
+        // --- ⚙️ [จุดที่ 1] ตั้งค่าเวลานับถอยหลังเพื่อเปิดระบบที่นี่ ⚙️ ---
+        // รูปแบบระบุเวลา: 'Month Day, Year Hour:Minute:Second'
+        const TARGET_LAUNCH_DATE = 'June 1, 2026 09:00:00'; 
+
+        // --- ⚙️ [จุดที่ 2] ตั้งค่าข้อมูลการเงินของคุณตรงนี้ ⚙️ ---
+        const PRICE_PER_SHIRT = 320; 
+        const PROMPTPAY_NUMBER = '1129701331742'; 
         // --------------------------------------------------------
 
         const form = document.getElementById('preorderForm');
@@ -296,10 +359,41 @@
         let currentMethod = 'promptpay';
         let currentTotal = 0;
 
-        // ฟังก์ชันสร้างช่องระบุไซส์แยกตามจำนวนตัวแบบไดนามิก
+        // ⏳ ฟังก์ชันนับถอยหลังเปิดระบบอัตโนมัติ
+        function startCountdown() {
+            const launchTime = new Date(TARGET_LAUNCH_DATE).getTime();
+
+            const timerInterval = setInterval(() => {
+                const now = new Date().getTime();
+                const distance = launchTime - now;
+
+                // หากถึงเวลาหรือเลยเวลาเปิดจองแล้ว ให้ปิดกล่องนับถอยหลังแล้วเปิดฟอร์มทันที
+                if (distance <= 0) {
+                    clearInterval(timerInterval);
+                    document.getElementById('countdown-container').style.display = 'none';
+                    document.getElementById('mainFormContainer').style.display = 'block';
+                    renderSizeFields(); // เริ่มโหลดฟังก์ชันฟอร์ม
+                    return;
+                }
+
+                // คำนวณวัน เวลา นาที วินาที
+                const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+                // แสดงผลตัวเลขลงหน้าจอเว็บ
+                document.getElementById('days').textContent = days.toString().padStart(2, '0');
+                document.getElementById('hours').textContent = hours.toString().padStart(2, '0');
+                document.getElementById('minutes').textContent = minutes.toString().padStart(2, '0');
+                document.getElementById('seconds').textContent = seconds.toString().padStart(2, '0');
+            }, 1000);
+        }
+
+        // ฟังก์ชันสร้างช่องระบุไซส์คละแบบ
         function renderSizeFields() {
             const qty = parseInt(quantityInput.value) || 1;
-            sizeContainer.innerHTML = ''; // ล้างอินพุตชุดเก่าออกก่อน
+            sizeContainer.innerHTML = '';
 
             for (let i = 1; i <= qty; i++) {
                 const sizeRow = document.createElement('div');
@@ -322,7 +416,6 @@
             calculateTotal();
         }
 
-        // ฟังก์ชันคำนวณราคาสั่งซื้อรวมตามจำนวนตัว
         function calculateTotal() {
             const qty = parseInt(quantityInput.value) || 0;
             currentTotal = qty * PRICE_PER_SHIRT;
@@ -330,7 +423,6 @@
             generatePromptPayQR();
         }
 
-        // ฟังก์ชันสร้าง QR Code พร้อมเพย์อัตโนมัติตามราคาที่คำนวณได้
         function generatePromptPayQR() {
             if (currentTotal <= 0) {
                 qrContainer.innerHTML = '<p style="font-size:13px; color:#aaa;">(กรุณาระบุจำนวนเพื่อสร้าง QR)</p>';
@@ -340,7 +432,6 @@
             qrContainer.innerHTML = `<img src="${qrUrl}" class="qr-code-img" alt="Promptpay QR Code"><br><span style="font-size:12px; color:#aaa; display:block; margin-top:5px;">ยอดโอนอัตโนมัติ: ${currentTotal} บาท</span>`;
         }
 
-        // ฟังก์ชันสลับแท็บช่องทางชำระเงิน
         function selectPayment(method) {
             currentMethod = method;
             document.getElementById('btnPromptpay').classList.remove('active');
@@ -357,8 +448,8 @@
             }
         }
 
-        // สร้างช่องเลือกไซส์เริ่มต้นทันทีเมื่อโหลดหน้าเพจเสร็จ (เริ่มต้นที่ 1 ตัว)
-        window.addEventListener('DOMContentLoaded', renderSizeFields);
+        // เริ่มต้นการทำงานระบบนับถอยหลังเมื่อเปิดหน้าเว็บ
+        window.addEventListener('DOMContentLoaded', startCountdown);
         quantityInput.addEventListener('input', renderSizeFields);
 
         // ระบบส่งฟอร์มข้อมูลไปยัง Google Sheets Web App
@@ -369,7 +460,6 @@
             const btn = document.getElementById('submitBtn');
             const fileInput = document.getElementById('slipInput');
             
-            // รวบรวมไซส์เสื้อจากทุกช่องย่อยมารวมกันเป็นข้อความเดียวส่งเข้าคอลัมน์ของชีต
             const sizeSelects = document.querySelectorAll('.shirt-size-select');
             let sizeSummary = [];
             sizeSelects.forEach((select, index) => {
