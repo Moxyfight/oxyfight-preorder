@@ -235,7 +235,7 @@
 
                 <label>เลือกไซส์เสื้อแต่ละตัว</label>
                 <div class="size-selection-box" id="sizeContainer">
-                    </div>
+                </div>
 
                 <label>ที่อยู่สำหรับจัดส่ง</label>
                 <textarea id="addressInput" name="address" rows="3" required placeholder="บ้านเลขที่, ซอย, ถนน, ตำบล, อำเภอ, จังหวัด, รหัสไปรษณีย์"></textarea>
@@ -390,4 +390,43 @@
                 reader.onload = function(e) {
                     const base64String = e.target.result;
                     
-                    // 🛠️ แก้ไข
+                    // 🛠️ แก้ไขการดึงค่าพารามิเตอร์ผ่าน ID ตรงๆ เพื่อความเสถียรสูงสุด ข้อมูลวิ่งเข้าชีตแน่นอน
+                    const params = new URLSearchParams();
+                    params.append('name', document.getElementById('nameInput').value);
+                    params.append('phone', document.getElementById('phoneInput').value);
+                    params.append('size', finalSizeString); 
+                    params.append('quantity', quantityInput.value);
+                    params.append('address', document.getElementById('addressInput').value);
+                    params.append('slipFile', base64String);
+                    params.append('slipFileName', file.name);
+                    params.append('slipMimeType', file.type);
+
+                    fetch(scriptURL, { 
+                        method: 'POST', 
+                        body: params 
+                    })
+                    .then(response => response.text())
+                    .then(result => {
+                        alert('สั่งจองและแจ้งโอนเงินสำเร็จเรียบร้อยครับ! ขอบคุณครับ');
+                        form.reset();
+                        window.location.reload();
+                    })
+                    .catch(error => {
+                        console.error('Error!', error);
+                        alert('เกิดข้อผิดพลาดในการส่งข้อมูล กรุณาลองใหม่อีกครั้ง');
+                        btn.textContent = 'ดำเนินการสั่งจองสินค้า';
+                        btn.disabled = false;
+                        btn.style.backgroundColor = '#E62020';
+                    });
+                };
+                reader.readAsDataURL(file);
+            } else {
+                alert('กรุณาแนบสลิปการโอนเงินด้วยครับ');
+                btn.textContent = 'ดำเนินการสั่งจองสินค้า';
+                btn.disabled = false;
+                btn.style.backgroundColor = '#E62020';
+            }
+        });
+    </script>
+</body>
+</html>
