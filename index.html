@@ -80,7 +80,7 @@
             outline: none;
         }
         
-        /* สไตล์ตารางตารางเลือกไซส์และระบุจำนวนเสื้อ */
+        /* สไตล์ตารางเลือกไซส์และระบุจำนวนเสื้อแบบกลุ่ม (Size Matrix) */
         .size-matrix-table {
             width: 100%;
             margin-top: 8px;
@@ -380,7 +380,7 @@
         form.addEventListener('submit', e => {
             e.preventDefault();
             
-            // ⚠️ วางลิงก์ Web App ใหม่ที่คุณได้จากการ Deploy ในสเต็ปที่ 1 ลงตรงนี้แทนอันเดิมครับ
+            // ⚠️ วางลิงก์ Web App (URL ใหม่ที่คุณได้ทำการ Deploy ใหม่ล่าสุดจากสเต็ปที่ 2) ตรงนี้ครับ
             const scriptURL = 'https://script.google.com/macros/s/AKfycbwycizjo6-kAFUyFOh90XNIKHdDXBBf5WwfIVWJs2rUh3JhlTTcgvRHHmM1osF_MVne/exec'; 
             
             const btn = document.getElementById('submitBtn');
@@ -391,7 +391,7 @@
                 return;
             }
 
-            // จัดฟอร์แมตข้อมูล เช่น "M: 3 ตัว, L: 2 ตัว" ส่งบันทึกเข้าช่องช่องไซส์ใน Sheet
+            // จัดกลุ่มสรุปการเลือกไซส์ เช่นหากสั่ง L=2, M=3 จะแสดงข้อความ "M: 3 ตัว, L: 2 ตัว" ส่งเข้า Google Sheets
             let sizeDetails = [];
             sizeInputs.forEach(input => {
                 const qty = parseInt(input.value) || 0;
@@ -418,7 +418,9 @@
                     params.append('size', finalSizeString); 
                     params.append('quantity', totalQuantity); 
                     params.append('address', document.getElementById('addressInput').value);
-                    params.append('slipFile', base64String); // แนบสตรีมภาพเข้าสู่เซลล์ตารางโดยตรง
+                    params.append('slipFile', base64String);
+                    params.append('slipFileName', file.name);
+                    params.append('slipMimeType', file.type);
 
                     fetch(scriptURL, { 
                         method: 'POST', 
