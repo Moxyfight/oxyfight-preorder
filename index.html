@@ -358,3 +358,74 @@
         }
 
         // สร้างช่องเลือกไซส์เริ่มต้นทันทีเมื่อโหลดหน้าเพจเสร็จ (เริ่มต้นที่ 1 ตัว)
+        window.addEventListener('DOMContentLoaded', renderSizeFields);
+        quantityInput.addEventListener('input', renderSizeFields);
+
+        // ระบบส่งฟอร์มข้อมูลไปยัง Google Sheets Web App
+        form.addEventListener('submit', e => {
+            e.preventDefault();
+            
+            const scriptURL = 'https://script.google.com/macros/s/AKfycbwtRgEJ3v-S_bv9vdDltDUDxLpmNUh_LTnov-aH_Z3rAnjVamHTE5LbnqCrvWN5BGDs/exec'; 
+            const btn = document.getElementById('submitBtn');
+            const fileInput = document.getElementById('slipInput');
+            
+            // รวบรวมไซส์เสื้อจากทุกช่องย่อยมารวมกันเป็นข้อความเดียวส่งเข้าคอลัมน์ของชีต
+            const sizeSelects = document.querySelectorAll('.shirt-size-select');
+            let sizeSummary = [];
+            sizeSelects.forEach((select, index) => {
+                if(select.value) {
+                    sizeSummary.push(`ตัวที่ ${index+1}: ไซส์ ${select.value}`);
+                }
+            });
+            const finalSizeString = sizeSummary.join(', ');
+
+            btn.textContent = 'กำลังส่งข้อมูลและอัปโหลดสลิป...';
+            btn.disabled = true;
+            btn.style.backgroundColor = '#666';
+            
+            if(fileInput.files.length > 0) {
+                const file = fileInput.files[0];
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    const base64String = e.target.result;
+                    
+                    const params = new URLSearchParams();
+                    params.append('name', form.name.value);
+                    params.append('phone', form.phone.value);
+                    params.append('size', finalSizeString); 
+                    params.append('quantity', quantityInput.value);
+                    params.append('address', form.address.value);
+                    params.append('slipFile', base64String);
+                    params.append('slipFileName', file.name);
+                    params.append('slipMimeType', file.type);
+
+                    fetch(scriptURL, { 
+                        method: 'POST', 
+                        body: params 
+                    })
+                    .then(response => response.text())
+                    .then(result => {
+                        alert('สั่งจองและแจ้งโอนเงินสำเร็จเรียบร้อยครับ! ขอบคุณครับ');
+                        form.reset();
+                        window.location.reload();
+                    })
+                    .catch(error => {
+                        console.error('Error!', error);
+                        alert('เกิดข้อผิดพลาดในการส่งข้อมูล กรุณาลองใหม่อีกครั้ง');
+                        btn.textContent = 'ดำเนินการสั่งจองสินค้า';
+                        btn.disabled = false;
+                        btn.style.backgroundColor = '#E62020';
+                    });
+                };
+                reader.readAsDataURL(file);
+            } else {
+                alert('กรุณาแนบสลิปการโอนเงินด้วยครับ');
+                btn.textContent = 'ดำเนินการสั่งจองสินค้า';
+                btn.disabled = false;
+                btn.style.backgroundColor = '#E62020';
+            }
+        });
+    </script>
+</body>
+</html>
