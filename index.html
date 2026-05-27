@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pre-order OXYFIGHT T-Shirt</title>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Kanit', sans-serif;
+            /* ใส่รูป Background ตรงนี้ */
+            background-image: url('Comming Soon.png'); 
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            color: white;
+        }
+        .overlay {
+            background-color: rgba(0, 0, 0, 0.75); /* ทำให้พื้นหลังมืดลงนิดหน่อยเพื่อให้ฟอร์มเด่นขึ้น */
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px 20px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .header img {
+            max-width: 180px; /* ขนาดโลโก้ */
+            margin-bottom: 10px;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 32px;
+            text-transform: uppercase;
+        }
+        .header p {
+            color: #ccc;
+            margin-top: 5px;
+        }
+        .form-container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(8px);
+            padding: 30px;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.2);
+            width: 100%;
+            max-width: 450px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        }
+        label {
+            font-size: 14px;
+            font-weight: 400;
+            margin-top: 15px;
+            display: block;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            margin-top: 5px;
+            border: none;
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-family: 'Kanit', sans-serif;
+            font-size: 16px;
+            background: rgba(255,255,255,0.9);
+        }
+        button {
+            width: 100%;
+            padding: 15px;
+            background-color: #E62020; /* สีแดงอ้างอิงจากป้าย BUY NOW */
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 25px;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background-color: #B31515;
+        }
+    </style>
+</head>
+<body>
+    <div class="overlay">
+        <div class="header">
+            <img src="Oxyfight 1-1.png" alt="Oxyfight Foundation Logo">
+            <h1>Pre-order</h1>
+            <p>มูลนิธิอ็อกซี่ไฟต์ (Oxyfight Foundation)</p>
+        </div>
+
+        <div class="form-container">
+            <form id="preorderForm">
+                <label>ชื่อ-นามสกุล</label>
+                <input type="text" name="name" required placeholder="กรอกชื่อ-นามสกุล">
+
+                <label>เบอร์โทรศัพท์</label>
+                <input type="tel" name="phone" required placeholder="08X-XXX-XXXX">
+
+                <label>ไซส์เสื้อ</label>
+                <select name="size" required>
+                    <option value="">-- เลือกไซส์ --</option>
+                    <option value="S">S (รอบอก 32 นิ้ว)</option>
+                    <option value="M">M (รอบอก 36 นิ้ว)</option>
+                    <option value="L">L (รอบอก 40 นิ้ว)</option>
+                    <option value="XL">XL (รอบอก 44 นิ้ว)</option>
+                    <option value="2XL">2XL (รอบอก 48 นิ้ว)</option>
+                </select>
+
+                <label>จำนวน (ตัว)</label>
+                <input type="number" name="quantity" min="1" value="1" required>
+
+                <label>ที่อยู่สำหรับจัดส่ง</label>
+                <textarea name="address" rows="3" required placeholder="บ้านเลขที่, ซอย, ถนน, ตำบล, อำเภอ, จังหวัด, รหัสไปรษณีย์"></textarea>
+
+                <button type="submit" id="submitBtn">BUY NOW (ยืนยันการพรีออเดอร์)</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('preorderForm');
+        
+        form.addEventListener('submit', e => {
+            e.preventDefault();
+            
+            // !!! เอา URL จาก Google Apps Script มาใส่ในบรรทัดด้านล่างนี้ !!!
+            const scriptURL = 'https://script.google.com/a/macros/oxyfight.org/s/AKfycbwtRgEJ3v-S_bv9vdDltDUDxLpmNUh_LTnov-aH_Z3rAnjVamHTE5LbnqCrvWN5BGDs/exec'; 
+            
+            const btn = document.getElementById('submitBtn');
+            btn.textContent = 'กำลังบันทึกข้อมูล...';
+            btn.disabled = true;
+            btn.style.backgroundColor = '#666';
+
+            fetch(scriptURL, { method: 'POST', mode: 'no-cors', body: new FormData(form)})
+                .then(response => {
+                    alert('สั่งจองสำเร็จ! ขอบคุณที่สนับสนุนมูลนิธิอ็อกซี่ไฟต์ครับ');
+                    form.reset();
+                    btn.textContent = 'BUY NOW (ยืนยันการพรีออเดอร์)';
+                    btn.disabled = false;
+                    btn.style.backgroundColor = '#E62020';
+                })
+                .catch(error => {
+                    console.error('Error!', error.message);
+                    alert('เกิดข้อผิดพลาดในการส่งข้อมูล กรุณาลองใหม่อีกครั้ง');
+                    btn.textContent = 'BUY NOW (ยืนยันการพรีออเดอร์)';
+                    btn.disabled = false;
+                    btn.style.backgroundColor = '#E62020';
+                });
+        });
+    </script>
+</body>
+</html>
