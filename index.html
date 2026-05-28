@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pre-order OXYFIGHT T-Shirt</title>
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         body {
             margin: 0;
@@ -15,6 +16,7 @@
             background-position: center;
             background-attachment: fixed;
             color: white;
+            background-color: #111; /* Fallback color */
         }
         .overlay {
             background-color: rgba(0, 0, 0, 0.8); 
@@ -195,6 +197,23 @@
             border-radius: 4px;
         }
 
+        /* เพิ่ม Style สำหรับพรีวิวรูปสลิป */
+        #imagePreviewContainer {
+            display: none;
+            margin-top: 15px;
+            text-align: center;
+            border: 1px dashed #555;
+            padding: 10px;
+            border-radius: 8px;
+            background: rgba(0,0,0,0.3);
+        }
+        #slipPreview {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 4px;
+            border: 2px solid #333;
+        }
+
         button.submit-btn {
             width: 100%;
             padding: 15px;
@@ -212,12 +231,25 @@
         button.submit-btn:hover {
             background-color: #B31515;
         }
+        button.submit-btn:disabled {
+            background-color: #666;
+            cursor: not-allowed;
+        }
+
+        /* เครดิตผู้พัฒนา */
+        .developer-credit {
+            text-align: center;
+            margin-top: 25px;
+            font-size: 12px;
+            color: #666;
+            letter-spacing: 1px;
+        }
     </style>
 </head>
 <body>
     <div class="overlay">
         <div class="header">
-            <img src="Oxyfight 1-1.png" alt="Oxyfight Logo">
+            <img src="Oxyfight 1-1.png" alt="Oxyfight Logo" onerror="this.style.display='none'">
             <h1>Pre-order</h1>
         </div>
 
@@ -312,9 +344,18 @@
 
                 <label style="margin-top:20px;">แนบสลิปการโอนเงิน (จำกัดเฉพาะไฟล์รูปภาพ)</label>
                 <input type="file" id="slipInput" accept="image/*" required>
+                
+                <div id="imagePreviewContainer">
+                    <p style="font-size: 13px; color: #ccc; margin-top: 0; margin-bottom: 8px;">ตัวอย่างสลิปที่แนบ</p>
+                    <img id="slipPreview" src="" alt="Slip Preview">
+                </div>
 
                 <button type="submit" class="submit-btn" id="submitBtn">ดำเนินการสั่งจองสินค้า</button>
             </form>
+
+            <div class="developer-credit">
+                พัฒนาโดย REDADX.X·© 2026
+            </div>
         </div>
     </div>
 
@@ -327,6 +368,11 @@
         const totalQtyDisplay = document.getElementById('totalQtyDisplay');
         const qrContainer = document.getElementById('qrContainer');
         const sizeInputs = document.querySelectorAll('.size-qty-input');
+        
+        // ตัวแปรสำหรับ Image Preview
+        const slipInput = document.getElementById('slipInput');
+        const imagePreviewContainer = document.getElementById('imagePreviewContainer');
+        const slipPreview = document.getElementById('slipPreview');
         
         let currentMethod = 'promptpay';
         let currentTotal = 0;
@@ -376,17 +422,38 @@
             input.addEventListener('blur', function() { if(this.value === '') this.value = '0'; });
         });
 
+        // ฟังก์ชันแสดงรูปภาพพรีวิวเมื่อมีการเลือกไฟล์
+        slipInput.addEventListener('change', function() {
+            const file = this.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    slipPreview.src = e.target.result;
+                    imagePreviewContainer.style.display = 'block';
+                }
+                reader.readAsDataURL(file);
+            } else {
+                slipPreview.src = '';
+                imagePreviewContainer.style.display = 'none';
+            }
+        });
+
         form.addEventListener('submit', e => {
             e.preventDefault();
             
-            // ⚠️ วางลิงก์ Web App ใหม่ที่คุณได้จากการทำ New Deployment ในสเต็ปที่ 1 ลงตรงนี้แทนอันเดิมครับ
+            // ⚠️ ลิงก์ Web App Google Apps Script
             const scriptURL = 'https://script.google.com/macros/s/AKfycbwsQSb-swDSrj6JiXTxuPgxQ8L0j64W7yIR2ZTjtWZ5Ynck6MxQIAKOvWyZGBYdu8t8/exec'; 
             
             const btn = document.getElementById('submitBtn');
             const fileInput = document.getElementById('slipInput');
             
             if (totalQuantity <= 0) {
-                alert('กรุณาระบุจำนวนเสื้อในตารางอย่างน้อย 1 ตัวครับ');
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'แจ้งเตือน',
+                    text: 'กรุณาระบุจำนวนเสื้อในตารางอย่างน้อย 1 ตัวครับ',
+                    confirmButtonColor: '#E62020'
+                });
                 return;
             }
 
@@ -399,9 +466,9 @@
             });
             const finalSizeString = sizeDetails.join(', ');
 
-            btn.textContent = 'กำลังลดขนาดรูปภาพและส่งข้อมูล...';
+            // แสดงสถานะโหลดระหว่างส่งข้อมูล
+            btn.textContent = 'กำลังส่งข้อมูล...';
             btn.disabled = true;
-            btn.style.backgroundColor = '#666';
             
             if(fileInput.files.length > 0) {
                 const file = fileInput.files[0];
@@ -414,7 +481,6 @@
                         const canvas = document.createElement('canvas');
                         const ctx = canvas.getContext('2d');
                         
-                        // บีบขนาดด้านที่ยาวสุดไม่ให้เกิน 500px เพื่อย่อขนาดตัวอักษรลง 90% ส่งข้อมูลผ่านฉลุย
                         const MAX_WIDTH = 500;
                         const MAX_HEIGHT = 500;
                         let width = img.width;
@@ -436,7 +502,6 @@
                         canvas.height = height;
                         ctx.drawImage(img, 0, 0, width, height);
                         
-                        // บีบอัดคุณภาพเหลือ 60% (ไฟล์จะเหลือแค่ไม่กี่ KB แต่ตาคนยังอ่านสลิปออกชัดเจน)
                         const compressedBase64 = canvas.toDataURL('image/jpeg', 0.6);
                         
                         const params = new URLSearchParams();
@@ -454,30 +519,50 @@
                         .then(response => response.text())
                         .then(result => {
                             if(result.includes("Error")) {
-                              alert('ระบบแจ้งเตือนข้อผิดพลาด: ' + result);
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'เกิดข้อผิดพลาด',
+                                    text: 'ระบบแจ้งเตือนข้อผิดพลาด: ' + result,
+                                    confirmButtonColor: '#E62020'
+                                });
                             } else {
-                              alert('สั่งจองและแจ้งโอนเงินสำเร็จเรียบร้อยครับ! ขอบคุณครับ');
-                              form.reset();
-                              window.location.reload();
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'สำเร็จ!',
+                                    text: 'สั่งจองและแจ้งโอนเงินสำเร็จเรียบร้อยครับ! ขอบคุณครับ',
+                                    confirmButtonColor: '#E62020'
+                                }).then(() => {
+                                    form.reset();
+                                    imagePreviewContainer.style.display = 'none';
+                                    window.location.reload();
+                                });
                             }
                         })
                         .catch(error => {
                             console.error('Error!', error);
-                            alert('เกิดข้อผิดพลาดในการส่งข้อมูล กรุณาลองใหม่อีกครั้ง');
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'ขัดข้อง',
+                                text: 'เกิดข้อผิดพลาดในการส่งข้อมูล กรุณาลองใหม่อีกครั้ง',
+                                confirmButtonColor: '#E62020'
+                            });
                         })
                         .finally(() => {
                             btn.textContent = 'ดำเนินการสั่งจองสินค้า';
                             btn.disabled = false;
-                            btn.style.backgroundColor = '#E62020';
                         });
                     };
                 };
                 reader.readAsDataURL(file);
             } else {
-                alert('กรุณาแนบสลิปการโอนเงินด้วยครับ');
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'แจ้งเตือน',
+                    text: 'กรุณาแนบสลิปการโอนเงินด้วยครับ',
+                    confirmButtonColor: '#E62020'
+                });
                 btn.textContent = 'ดำเนินการสั่งจองสินค้า';
                 btn.disabled = false;
-                btn.style.backgroundColor = '#E62020';
             }
         });
     </script>
