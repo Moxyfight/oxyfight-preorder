@@ -379,8 +379,8 @@
         form.addEventListener('submit', e => {
             e.preventDefault();
             
-            // ⚠️ วางลิงก์ Web App ใหม่ที่คุณเพิ่งอัปเดตเวอร์ชันจากสเต็ปที่ 1 ตรงนี้แทนของเดิมครับ!
-            const scriptURL = 'https://script.google.com/a/macros/oxyfight.org/s/AKfycbzDNaTKFm6kX-_zZDtNyNtDRt7HXIKUFM-pE_TPzOLVSz-0e66B-ql9-6t0zXiUON58/exec'; 
+            // ⚠️ วางลิงก์ Web App ใหม่ที่คุณได้จากการทำ New Deployment ในสเต็ปที่ 1 ลงตรงนี้แทนอันเดิมครับ
+            const scriptURL = 'https://script.google.com/macros/s/AKfycbyyAFAgtDhy0iG0Mw9Pyx1YoL9BZqGuHq_BgkK_ZpMnmgPYB4EIIdNRL2Z4Yf4DSc5m/exec'; 
             
             const btn = document.getElementById('submitBtn');
             const fileInput = document.getElementById('slipInput');
@@ -411,13 +411,12 @@
                     const img = new Image();
                     img.src = event.target.result;
                     img.onload = function() {
-                        // 🛠️ ระบบบีบอัดไฟล์รูปภาพสลิปให้เล็กลงอัตโนมัติก่อนส่ง (ป้องกัน Google บล็อกข้อความยาวเกินไป)
                         const canvas = document.createElement('canvas');
                         const ctx = canvas.getContext('2d');
                         
-                        // กำหนดขนาดด้านที่ยาวที่สุดไม่เกิน 600px (ชัดเจนพอที่จะอ่านตัวหนังสือบนสลิปออกและไฟล์จิ๋วมาก)
-                        const MAX_WIDTH = 600;
-                        const MAX_HEIGHT = 600;
+                        // บีบขนาดด้านที่ยาวสุดไม่ให้เกิน 500px เพื่อย่อขนาดตัวอักษรลง 90% ส่งข้อมูลผ่านฉลุย
+                        const MAX_WIDTH = 500;
+                        const MAX_HEIGHT = 500;
                         let width = img.width;
                         let height = img.height;
 
@@ -437,8 +436,8 @@
                         canvas.height = height;
                         ctx.drawImage(img, 0, 0, width, height);
                         
-                        // แปลงเป็นข้อความ Base64 ขนาดเล็ก (คุณภาพรูปภาพ 70%)
-                        const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7);
+                        // บีบอัดคุณภาพเหลือ 60% (ไฟล์จะเหลือแค่ไม่กี่ KB แต่ตาคนยังอ่านสลิปออกชัดเจน)
+                        const compressedBase64 = canvas.toDataURL('image/jpeg', 0.6);
                         
                         const params = new URLSearchParams();
                         params.append('name', document.getElementById('nameInput').value);
@@ -446,7 +445,7 @@
                         params.append('size', finalSizeString); 
                         params.append('quantity', totalQuantity); 
                         params.append('address', document.getElementById('addressInput').value);
-                        params.append('slipFile', compressedBase64); // ส่งข้อมูลที่ย่อแล้วเข้า Sheets
+                        params.append('slipFile', compressedBase64); 
 
                         fetch(scriptURL, { 
                             method: 'POST', 
