@@ -9,6 +9,7 @@
     <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 
     <script>
+        let lineUserId = ""; // ประกาศตัวแปรนี้ไว้ข้างบนสุดของ script
         // เพิ่มการตั้งค่า LIFF ID ของคุณ
         const LIFF_ID = '2010252658-3N9p0M37'; // เอามาจาก LINE Developers Console
 
@@ -19,9 +20,11 @@
                     // ถ้ายังไม่ได้เข้าสู่ระบบ LINE ให้เด้งไปหน้า Login ของ LINE (ซึ่งจะมี QR ให้สแกนถ้าเปิดบนคอม)
                     liff.login();
                 } else {
+                       const profile = await liff.getProfile();
+                       lineUserId = profile.userId; // เก็บ userId ไว้ใช้งานตอน submit
                     // เข้าสู่ระบบสำเร็จ สามารถดึงโปรไฟล์มาใส่ในฟอร์มให้เลยได้ด้วย!
-                    const profile = await liff.getProfile();
-                    document.getElementById('nameInput').value = profile.displayName;
+                    // const profile = await liff.getProfile();
+                    // document.getElementById('nameInput').value = profile.displayName;
                     
                     // (ไม่บังคับ) ถ้าอยากส่งข้อมูล LINE ไปเก็บใน Google Sheets ด้วย
                     // ให้เพิ่มฟังก์ชันส่ง profile.userId หรือ profile.displayName ไปพร้อมฟอร์มได้เลย
