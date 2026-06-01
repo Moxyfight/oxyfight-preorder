@@ -6,6 +6,41 @@
     <title>Pre-order OXYFIGHT T-Shirt</title>
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+
+<script>
+    // เพิ่มการตั้งค่า LIFF ID ของคุณ
+    const LIFF_ID = '2010252658-3N9p0M37'; // เอามาจาก LINE Developers Console
+
+    async function initializeLiff() {
+        try {
+            await liff.init({ liffId: LIFF_ID });
+            if (!liff.isLoggedIn()) {
+                // ถ้ายังไม่ได้เข้าสู่ระบบ LINE ให้เด้งไปหน้า Login ของ LINE (ซึ่งจะมี QR ให้สแกนถ้าเปิดบนคอม)
+                liff.login();
+            } else {
+                // เข้าสู่ระบบสำเร็จ สามารถดึงโปรไฟล์มาใส่ในฟอร์มให้เลยได้ด้วย!
+                const profile = await liff.getProfile();
+                document.getElementById('nameInput').value = profile.displayName;
+                
+                // (ไม่บังคับ) ถ้าอยากส่งข้อมูล LINE ไปเก็บใน Google Sheets ด้วย
+                // ให้เพิ่มฟังก์ชันส่ง profile.userId หรือ profile.displayName ไปพร้อมฟอร์มได้เลย
+            }
+        } catch (error) {
+            console.error('LIFF Initialization failed', error);
+        }
+    }
+
+    // เรียกใช้งานเมื่อเปิดหน้าเว็บ
+    window.onload = function() {
+        initializeLiff();
+    };
+
+    // --- โค้ดเดิมของคุณต่อจากตรงนี้ ---
+    const PRICE_PER_SHIRT = 320;
+    // ...
+
     <style>
         body {
             margin: 0;
