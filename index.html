@@ -545,6 +545,7 @@
                         params.append('quantity', totalQuantity); 
                         params.append('address', document.getElementById('addressInput').value);
                         params.append('slipFile', compressedBase64); 
+                        params.append('lineUserId', lineUserId); // <--- เก็บไอดีไลน์
 
                         fetch(scriptURL, { 
                             method: 'POST', 
