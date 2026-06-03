@@ -6,39 +6,6 @@
     <title>Pre-order OXYFIGHT T-Shirt</title>
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
-
-    <script>
-        let lineUserId = ""; // ประกาศตัวแปรนี้ไว้ข้างบนสุดของ script
-        // เพิ่มการตั้งค่า LIFF ID ของคุณ
-        const LIFF_ID = '2010252658-3N9p0M37'; // เอามาจาก LINE Developers Console
-
-        async function initializeLiff() {
-            try {
-                await liff.init({ liffId: LIFF_ID });
-                if (!liff.isLoggedIn()) {
-                    // ถ้ายังไม่ได้เข้าสู่ระบบ LINE ให้เด้งไปหน้า Login ของ LINE (ซึ่งจะมี QR ให้สแกนถ้าเปิดบนคอม)
-                    liff.login();
-                } else {
-                       const profile = await liff.getProfile();
-                       lineUserId = profile.userId; // เก็บ userId ไว้ใช้งานตอน submit
-                    // เข้าสู่ระบบสำเร็จ สามารถดึงโปรไฟล์มาใส่ในฟอร์มให้เลยได้ด้วย!
-                    // const profile = await liff.getProfile();
-                    // document.getElementById('nameInput').value = profile.displayName;
-                    
-                    // (ไม่บังคับ) ถ้าอยากส่งข้อมูล LINE ไปเก็บใน Google Sheets ด้วย
-                    // ให้เพิ่มฟังก์ชันส่ง profile.userId หรือ profile.displayName ไปพร้อมฟอร์มได้เลย
-                }
-            } catch (error) {
-                console.error('LIFF Initialization failed', error);
-            }
-        }
-
-        // เรียกใช้งานเมื่อเปิดหน้าเว็บ
-        window.onload = function() {
-            initializeLiff();
-        };
-    </script>
 
     <style>
         body {
@@ -50,7 +17,7 @@
             background-position: center;
             background-attachment: fixed;
             color: white;
-            background-color: #111; /* Fallback color */
+            background-color: #111;
         }
         .overlay {
             background-color: rgba(0, 0, 0, 0.8); 
@@ -60,20 +27,9 @@
             align-items: center;
             padding: 40px 20px;
         }
-        .header {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        .header img {
-            max-width: 150px;
-            margin-bottom: 10px;
-        }
-        .header h1 {
-            margin: 0;
-            font-size: 32px;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-        }
+        .header { text-align: center; margin-bottom: 20px; }
+        .header img { max-width: 150px; margin-bottom: 10px; }
+        .header h1 { margin: 0; font-size: 32px; text-transform: uppercase; letter-spacing: 2px; }
         .form-container {
             background: rgba(20, 20, 20, 0.85);
             backdrop-filter: blur(10px);
@@ -85,199 +41,35 @@
             box-shadow: 0 15px 35px rgba(0,0,0,0.7);
             box-sizing: border-box;
         }
-        .section-title {
-            font-size: 18px;
-            font-weight: 600;
-            margin: 20px 0 10px 0;
-            padding-bottom: 5px;
-            border-bottom: 2px solid #E62020;
-            color: #E62020;
-        }
-        label {
-            font-size: 14px;
-            margin-top: 12px;
-            display: block;
-            color: #ddd;
-        }
-        input, select, textarea {
-            width: 100%;
-            padding: 12px;
-            margin-top: 5px;
-            border: 1px solid #444;
-            border-radius: 6px;
-            box-sizing: border-box;
-            font-family: 'Kanit', sans-serif;
-            font-size: 15px;
-            background: #222;
-            color: white;
-        }
-        input:focus, select:focus, textarea:focus {
-            border-color: #E62020;
-            outline: none;
-        }
+        .section-title { font-size: 18px; font-weight: 600; margin: 20px 0 10px 0; padding-bottom: 5px; border-bottom: 2px solid #E62020; color: #E62020; }
+        label { font-size: 14px; margin-top: 12px; display: block; color: #ddd; }
+        input, select, textarea { width: 100%; padding: 12px; margin-top: 5px; border: 1px solid #444; border-radius: 6px; box-sizing: border-box; font-family: 'Kanit', sans-serif; font-size: 15px; background: #222; color: white; }
+        input:focus, select:focus, textarea:focus { border-color: #E62020; outline: none; }
         
-        .size-matrix-table {
-            width: 100%;
-            margin-top: 8px;
-            border-collapse: collapse;
-            background: rgba(255, 255, 255, 0.02);
-            border-radius: 8px;
-            overflow: hidden;
-            border: 1px solid #333;
-        }
-        .size-matrix-table th, .size-matrix-table td {
-            padding: 10px;
-            text-align: center;
-            border: 1px solid #333;
-        }
-        .size-matrix-table th {
-            background: rgba(230, 32, 32, 0.1);
-            color: #E62020;
-            font-size: 14px;
-        }
-        .size-qty-input {
-            width: 80px !important;
-            padding: 6px !important;
-            margin-top: 0 !important;
-            text-align: center;
-        }
+        .size-matrix-table { width: 100%; margin-top: 8px; border-collapse: collapse; background: rgba(255, 255, 255, 0.02); border-radius: 8px; overflow: hidden; border: 1px solid #333; }
+        .size-matrix-table th, .size-matrix-table td { padding: 10px; text-align: center; border: 1px solid #333; }
+        .size-matrix-table th { background: rgba(230, 32, 32, 0.1); color: #E62020; font-size: 14px; }
+        .size-qty-input { width: 80px !important; padding: 6px !important; margin-top: 0 !important; text-align: center; }
 
-        .payment-methods {
-            display: flex;
-            gap: 10px;
-            margin-top: 10px;
-        }
-        .method-btn {
-            flex: 1;
-            background: #111;
-            border: 1px solid #444;
-            padding: 12px 5px;
-            border-radius: 8px;
-            cursor: pointer;
-            text-align: center;
-            color: #aaa;
-            font-family: 'Kanit', sans-serif;
-            font-size: 14px;
-            transition: all 0.3s;
-        }
-        .method-btn.active {
-            border-color: #E62020;
-            background: rgba(230, 32, 32, 0.1);
-            color: #fff;
-        }
+        .payment-methods { display: flex; gap: 10px; margin-top: 10px; }
+        .method-btn { flex: 1; background: #111; border: 1px solid #444; padding: 12px 5px; border-radius: 8px; cursor: pointer; text-align: center; color: #aaa; font-family: 'Kanit', sans-serif; font-size: 14px; transition: all 0.3s; }
+        .method-btn.active { border-color: #E62020; background: rgba(230, 32, 32, 0.1); color: #fff; }
 
-        .payment-details-box {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px dashed rgba(255, 255, 255, 0.2);
-            border-radius: 8px;
-            padding: 15px;
-            margin-top: 15px;
-            text-align: center;
-        }
-        .bank-info-display {
-            display: none;
-        }
-        .bank-info-display.active {
-            display: block;
-        }
+        .payment-details-box { background: rgba(255, 255, 255, 0.05); border: 1px dashed rgba(255, 255, 255, 0.2); border-radius: 8px; padding: 15px; margin-top: 15px; text-align: center; }
+        .bank-info-display { display: none; }
+        .bank-info-display.active { display: block; }
         
-        .kbank-icon {
-            display: inline-block;
-            width: 24px;
-            height: 24px;
-            background-color: #00A950;
-            color: white;
-            font-weight: bold;
-            font-size: 14px;
-            line-height: 24px;
-            text-align: center;
-            border-radius: 50%;
-            margin-right: 6px;
-            vertical-align: middle;
-        }
-        
-        .account-number {
-            font-size: 24px;
-            font-weight: 600;
-            color: #fff;
-            margin: 5px 0;
-            letter-spacing: 1px;
-        }
-        .account-owner {
-            font-size: 14px;
-            color: #aaa;
-        }
-
-        .price-summary-box {
-            background: rgba(230, 32, 32, 0.15);
-            border: 1px solid #E62020;
-            border-radius: 8px;
-            padding: 12px;
-            margin-top: 15px;
-            text-align: center;
-            font-size: 18px;
-            font-weight: 600;
-        }
-        .price-amount {
-            color: #FF4D4D;
-            font-size: 24px;
-            margin: 0 5px;
-        }
-
-        .qr-code-img {
-            max-width: 200px;
-            margin-top: 10px;
-            border: 5px solid white;
-            border-radius: 4px;
-        }
-
-        /* เพิ่ม Style สำหรับพรีวิวรูปสลิป */
-        #imagePreviewContainer {
-            display: none;
-            margin-top: 15px;
-            text-align: center;
-            border: 1px dashed #555;
-            padding: 10px;
-            border-radius: 8px;
-            background: rgba(0,0,0,0.3);
-        }
-        #slipPreview {
-            max-width: 100%;
-            max-height: 300px;
-            border-radius: 4px;
-            border: 2px solid #333;
-        }
-
-        button.submit-btn {
-            width: 100%;
-            padding: 15px;
-            background-color: #E62020;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            font-size: 18px;
-            font-weight: 600;
-            cursor: pointer;
-            margin-top: 25px;
-            transition: background 0.3s;
-            text-transform: uppercase;
-        }
-        button.submit-btn:hover {
-            background-color: #B31515;
-        }
-        button.submit-btn:disabled {
-            background-color: #666;
-            cursor: not-allowed;
-        }
-
-        /* เครดิตผู้พัฒนา */
-        .developer-credit {
-            text-align: center;
-            margin-top: 25px;
-            font-size: 12px;
-            color: #666;
-            letter-spacing: 1px;
-        }
+        .kbank-icon { display: inline-block; width: 24px; height: 24px; background-color: #00A950; color: white; font-weight: bold; font-size: 14px; line-height: 24px; text-align: center; border-radius: 50%; margin-right: 6px; vertical-align: middle; }
+        .account-number { font-size: 24px; font-weight: 600; color: #fff; margin: 5px 0; letter-spacing: 1px; }
+        .account-owner { font-size: 14px; color: #aaa; }
+        .price-summary-box { background: rgba(230, 32, 32, 0.15); border: 1px solid #E62020; border-radius: 8px; padding: 12px; margin-top: 15px; text-align: center; font-size: 18px; font-weight: 600; }
+        .price-amount { color: #FF4D4D; font-size: 24px; margin: 0 5px; }
+        .qr-code-img { max-width: 200px; margin-top: 10px; border: 5px solid white; border-radius: 4px; }
+        #imagePreviewContainer { display: none; margin-top: 15px; text-align: center; border: 1px dashed #555; padding: 10px; border-radius: 8px; background: rgba(0,0,0,0.3); }
+        #slipPreview { max-width: 100%; max-height: 300px; border-radius: 4px; border: 2px solid #333; }
+        button.submit-btn { width: 100%; padding: 15px; background-color: #E62020; color: white; border: none; border-radius: 6px; font-size: 18px; font-weight: 600; cursor: pointer; margin-top: 25px; transition: background 0.3s; text-transform: uppercase; }
+        button.submit-btn:hover { background-color: #B31515; }
+        .developer-credit { text-align: center; margin-top: 25px; font-size: 12px; color: #666; letter-spacing: 1px; }
     </style>
 </head>
 <body>
@@ -289,158 +81,81 @@
 
         <div class="form-container">
             <form id="preorderForm">
-                
                 <div class="section-title">1. ข้อมูลผู้สั่งซื้อ</div>
-                
                 <label>ชื่อ-นามสกุล</label>
                 <input type="text" id="nameInput" name="name" required placeholder="กรอกชื่อ-นามสกุล">
 
                 <label>เบอร์โทรศัพท์</label>
                 <input type="tel" id="phoneInput" name="phone" required placeholder="08X-XXX-XXXX">
 
-                <label>ระบุจำนวนเสื้อที่ต้องการในแต่ละไซส์</label>
+                <label>ระบุจำนวนเสื้อที่ต้องการ</label>
                 <table class="size-matrix-table">
-                    <thead>
-                        <tr>
-                            <th>ไซส์เสื้อ</th>
-                            <th>ขนาดอก</th>
-                            <th>จำนวน (ตัว)</th>
-                        </tr>
-                    </thead>
+                    <thead><tr><th>ไซส์</th><th>อก</th><th>จำนวน</th></tr></thead>
                     <tbody>
-                        <tr>
-                            <td><strong>S</strong></td>
-                            <td style="color:#aaa;">38"</td>
-                            <td><input type="number" class="size-qty-input" data-size="S" min="0" value="0"></td>
-                        </tr>
-                        <tr>
-                            <td><strong>M</strong></td>
-                            <td style="color:#aaa;">40"</td>
-                            <td><input type="number" class="size-qty-input" data-size="M" min="0" value="0"></td>
-                        </tr>
-                        <tr>
-                            <td><strong>L</strong></td>
-                            <td style="color:#aaa;">42"</td>
-                            <td><input type="number" class="size-qty-input" data-size="L" min="0" value="0"></td>
-                        </tr>
-                        <tr>
-                            <td><strong>XL</strong></td>
-                            <td style="color:#aaa;">44"</td>
-                            <td><input type="number" class="size-qty-input" data-size="XL" min="0" value="0"></td>
-                        </tr>
-                        <tr>
-                            <td><strong>2XL</strong></td>
-                            <td style="color:#aaa;">46"</td>
-                            <td><input type="number" class="size-qty-input" data-size="2XL" min="0" value="0"></td>
-                        </tr>
+                        <tr><td><strong>S</strong></td><td>38"</td><td><input type="number" class="size-qty-input" data-size="S" min="0" value="0"></td></tr>
+                        <tr><td><strong>M</strong></td><td>40"</td><td><input type="number" class="size-qty-input" data-size="M" min="0" value="0"></td></tr>
+                        <tr><td><strong>L</strong></td><td>42"</td><td><input type="number" class="size-qty-input" data-size="L" min="0" value="0"></td></tr>
+                        <tr><td><strong>XL</strong></td><td>44"</td><td><input type="number" class="size-qty-input" data-size="XL" min="0" value="0"></td></tr>
+                        <tr><td><strong>2XL</strong></td><td>46"</td><td><input type="number" class="size-qty-input" data-size="2XL" min="0" value="0"></td></tr>
                     </tbody>
                 </table>
+                <div style="margin-top:12px; font-size:14px; color:#aaa; text-align:right;">รวม: <span id="totalQtyDisplay">0</span> ตัว</div>
 
-                <div style="margin-top:12px; font-size:14px; color:#aaa; text-align:right;">
-                    จำนวนเสื้อรวมทั้งหมด: <span id="totalQtyDisplay" style="color:#fff; font-weight:600;">0</span> ตัว
-                </div>
+                <label>ที่อยู่จัดส่ง</label>
+                <textarea id="addressInput" name="address" rows="3" required></textarea>
 
-                <label>ที่อยู่สำหรับจัดส่ง</label>
-                <textarea id="addressInput" name="address" rows="3" required placeholder="บ้านเลขที่, ซอย, ถนน, ตำบล, อำเภอ, จังหวัด, รหัสไปรษณีย์"></textarea>
+                <div class="price-summary-box">ยอดรวม: <span class="price-amount" id="totalPriceDisplay">0</span> บาท</div>
 
-                <div class="price-summary-box">
-                    ยอดเงินรวมที่ต้องชำระ: <span class="price-amount" id="totalPriceDisplay">0</span> บาท
-                </div>
-
-                <div class="section-title">2. ดำเนินการโอนเงิน</div>
-                
+                <div class="section-title">2. โอนเงิน</div>
                 <div class="payment-methods">
-                    <div class="method-btn active" id="btnPromptpay" onclick="selectPayment('promptpay')">
-                        พร้อมเพย์ (QR Code)
-                    </div>
-                    <div class="method-btn" id="btnBank" onclick="selectPayment('bank')">
-                        <span class="kbank-icon">K</span> บัญชีธนาคาร
-                    </div>
+                    <div class="method-btn active" id="btnPromptpay" onclick="selectPayment('promptpay')">พร้อมเพย์</div>
+                    <div class="method-btn" id="btnBank" onclick="selectPayment('bank')"><span class="kbank-icon">K</span> กสิกรไทย</div>
                 </div>
 
                 <div class="payment-details-box">
                     <div id="promptpayDisplay" class="bank-info-display active">
-                        <div style="font-weight:600; color:#4D94FF; margin-bottom:5px;">สแกนเพื่อจ่ายผ่านแอปธนาคาร</div>
-                        <div id="qrContainer">
-                            <p style="font-size:13px; color:#aaa;">(ระบบกำลังสร้าง QR อัตโนมัติ)</p>
-                        </div>
+                        <div id="qrContainer"><p>(กรุณาระบุจำนวนเพื่อสร้าง QR)</p></div>
                     </div>
-
                     <div id="bankDisplay" class="bank-info-display">
-                        <div>
-                            <span class="kbank-icon">K</span>
-                            <span style="font-size:16px; font-weight:600; color:#00A950;">ธนาคารกสิกรไทย</span>
-                        </div>
                         <div class="account-number">1318080212</div>
-                        <div class="account-owner">ชื่อบัญชี: นายปยุต ปิ่นรักษา</div>
+                        <div class="account-owner">นายปยุต ปิ่นรักษา</div>
                     </div>
                 </div>
 
-                <label style="margin-top:20px;">แนบสลิปการโอนเงิน (จำกัดเฉพาะไฟล์รูปภาพ)</label>
+                <label>แนบสลิป</label>
                 <input type="file" id="slipInput" accept="image/*" required>
-                
-                <div id="imagePreviewContainer">
-                    <p style="font-size: 13px; color: #ccc; margin-top: 0; margin-bottom: 8px;">ตัวอย่างสลิปที่แนบ</p>
-                    <img id="slipPreview" src="" alt="Slip Preview">
-                </div>
+                <div id="imagePreviewContainer"><img id="slipPreview" src="" alt="Slip"></div>
 
-                <button type="submit" class="submit-btn" id="submitBtn">ดำเนินการสั่งจองสินค้า</button>
+                <button type="submit" class="submit-btn" id="submitBtn">สั่งจองสินค้า</button>
             </form>
-
-            <div class="developer-credit">
-                พัฒนาโดย REDADX.X·© 2026
-            </div>
+            <div class="developer-credit">พัฒนาโดย REDADX.X·© 2026</div>
         </div>
     </div>
 
     <script>
-        const PRICE_PER_SHIRT = 399; 
-        const PROMPTPAY_NUMBER = '1129701331742'; 
-
+        const PRICE_PER_SHIRT = 399;
+        const PROMPTPAY_NUMBER = '1129701331742';
         const form = document.getElementById('preorderForm');
-        const totalPriceDisplay = document.getElementById('totalPriceDisplay');
-        const totalQtyDisplay = document.getElementById('totalQtyDisplay');
-        const qrContainer = document.getElementById('qrContainer');
         const sizeInputs = document.querySelectorAll('.size-qty-input');
         
-        // ตัวแปรสำหรับ Image Preview
-        const slipInput = document.getElementById('slipInput');
-        const imagePreviewContainer = document.getElementById('imagePreviewContainer');
-        const slipPreview = document.getElementById('slipPreview');
-        
-        let currentMethod = 'promptpay';
         let currentTotal = 0;
         let totalQuantity = 0;
 
         function calculateTotal() {
             totalQuantity = 0;
-            sizeInputs.forEach(input => {
-                const val = parseInt(input.value) || 0;
-                totalQuantity += val;
-            });
-
-            totalQtyDisplay.textContent = totalQuantity;
+            sizeInputs.forEach(input => totalQuantity += parseInt(input.value) || 0);
+            document.getElementById('totalQtyDisplay').textContent = totalQuantity;
             currentTotal = totalQuantity * PRICE_PER_SHIRT;
-            totalPriceDisplay.textContent = currentTotal.toLocaleString();
-            generatePromptPayQR();
-        }
-
-        function generatePromptPayQR() {
-            if (currentTotal <= 0) {
-                qrContainer.innerHTML = '<p style="font-size:13px; color:#aaa;">(กรุณาระบุจำนวนเสื้อเพื่อสร้าง QR)</p>';
-                return;
+            document.getElementById('totalPriceDisplay').textContent = currentTotal.toLocaleString();
+            
+            if (currentTotal > 0) {
+                document.getElementById('qrContainer').innerHTML = `<img src="https://promptpay.io/${PROMPTPAY_NUMBER}/${currentTotal}.png" class="qr-code-img">`;
             }
-            const qrUrl = `https://promptpay.io/${PROMPTPAY_NUMBER}/${currentTotal}.png`;
-            qrContainer.innerHTML = `<img src="${qrUrl}" class="qr-code-img" alt="Promptpay QR Code"><br><span style="font-size:12px; color:#aaa; display:block; margin-top:5px;">ยอดโอนอัตโนมัติ: ${currentTotal} บาท</span>`;
         }
 
         function selectPayment(method) {
-            currentMethod = method;
-            document.getElementById('btnPromptpay').classList.remove('active');
-            document.getElementById('btnBank').classList.remove('active');
-            document.getElementById('promptpayDisplay').classList.remove('active');
-            document.getElementById('bankDisplay').classList.remove('active');
-
+            document.querySelectorAll('.method-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.bank-info-display').forEach(d => d.classList.remove('active'));
             if (method === 'promptpay') {
                 document.getElementById('btnPromptpay').classList.add('active');
                 document.getElementById('promptpayDisplay').classList.add('active');
@@ -450,155 +165,54 @@
             }
         }
 
-        sizeInputs.forEach(input => {
-            input.addEventListener('input', calculateTotal);
-            input.addEventListener('focus', function() { if(this.value === '0') this.value = ''; });
-            input.addEventListener('blur', function() { if(this.value === '') this.value = '0'; });
-        });
+        sizeInputs.forEach(input => input.addEventListener('input', calculateTotal));
 
-        // ฟังก์ชันแสดงรูปภาพพรีวิวเมื่อมีการเลือกไฟล์
-        slipInput.addEventListener('change', function() {
-            const file = this.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    slipPreview.src = e.target.result;
-                    imagePreviewContainer.style.display = 'block';
-                }
-                reader.readAsDataURL(file);
-            } else {
-                slipPreview.src = '';
-                imagePreviewContainer.style.display = 'none';
-            }
+        document.getElementById('slipInput').addEventListener('change', function(e) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                document.getElementById('slipPreview').src = e.target.result;
+                document.getElementById('imagePreviewContainer').style.display = 'block';
+            };
+            reader.readAsDataURL(this.files[0]);
         });
 
         form.addEventListener('submit', e => {
             e.preventDefault();
-            
-            // ⚠️ ลิงก์ Web App Google Apps Script
-            const scriptURL = 'https://script.google.com/macros/s/AKfycbxIGp8WF9JtDdrW4BPMNOX4GTzxsGWgkPmUztAM9pRfT_8RAPC3e0yzpSjBwp1fdhp5/exec'; 
-            
             const btn = document.getElementById('submitBtn');
-            const fileInput = document.getElementById('slipInput');
+            const file = document.getElementById('slipInput').files[0];
             
-            if (totalQuantity <= 0) {
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'แจ้งเตือน',
-                    text: 'กรุณาระบุจำนวนเสื้อในตารางอย่างน้อย 1 ตัวครับ',
-                    confirmButtonColor: '#E62020'
-                });
-                return;
-            }
-
-            let sizeDetails = [];
-            sizeInputs.forEach(input => {
-                const qty = parseInt(input.value) || 0;
-                if (qty > 0) {
-                    sizeDetails.push(`${input.getAttribute('data-size')}: ${qty} ตัว`);
-                }
-            });
-            const finalSizeString = sizeDetails.join(', ');
-
-            // แสดงสถานะโหลดระหว่างส่งข้อมูล
-            btn.textContent = 'กำลังส่งข้อมูล...';
+            if (totalQuantity <= 0) return alert('กรุณาระบุจำนวนเสื้อ');
+            
             btn.disabled = true;
-            
-            if(fileInput.files.length > 0) {
-                const file = fileInput.files[0];
-                const reader = new FileReader();
-                
-                reader.onload = function(event) {
-                    const img = new Image();
-                    img.src = event.target.result;
-                    img.onload = function() {
-                        const canvas = document.createElement('canvas');
-                        const ctx = canvas.getContext('2d');
-                        
-                        const MAX_WIDTH = 500;
-                        const MAX_HEIGHT = 500;
-                        let width = img.width;
-                        let height = img.height;
+            btn.textContent = 'กำลังส่ง...';
 
-                        if (width > height) {
-                            if (width > MAX_WIDTH) {
-                                height *= MAX_WIDTH / width;
-                                width = MAX_WIDTH;
-                            }
-                        } else {
-                            if (height > MAX_HEIGHT) {
-                                width *= MAX_HEIGHT / height;
-                                height = MAX_HEIGHT;
-                            }
-                        }
-                        
-                        canvas.width = width;
-                        canvas.height = height;
-                        ctx.drawImage(img, 0, 0, width, height);
-                        
-                        const compressedBase64 = canvas.toDataURL('image/jpeg', 0.6);
-                        
-                        const params = new URLSearchParams();
-                        params.append('name', document.getElementById('nameInput').value);
-                        params.append('phone', document.getElementById('phoneInput').value);
-                        params.append('size', finalSizeString); 
-                        params.append('quantity', totalQuantity); 
-                        params.append('address', document.getElementById('addressInput').value);
-                        params.append('slipFile', compressedBase64); 
-                        params.append('lineUserId', lineUserId); // <--- เก็บไอดีไลน์
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const img = new Image();
+                img.src = event.target.result;
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = canvas.height = 500;
+                    canvas.getContext('2d').drawImage(img, 0, 0, 500, 500);
+                    
+                    const params = new URLSearchParams();
+                    params.append('name', document.getElementById('nameInput').value);
+                    params.append('phone', document.getElementById('phoneInput').value);
+                    params.append('quantity', totalQuantity);
+                    params.append('address', document.getElementById('addressInput').value);
+                    params.append('slipFile', canvas.toDataURL('image/jpeg', 0.6));
 
-                        fetch(scriptURL, { 
-                            method: 'POST', 
-                            body: params 
-                        })
-                        .then(response => response.text())
-                        .then(result => {
-                            if(result.includes("Error")) {
-                                Swal.fire({
-                                    icon: 'error',
-                                    title: 'เกิดข้อผิดพลาด',
-                                    text: 'ระบบแจ้งเตือนข้อผิดพลาด: ' + result,
-                                    confirmButtonColor: '#E62020'
-                                });
-                            } else {
-                                Swal.fire({
-                                    icon: 'success',
-                                    title: 'สำเร็จ!',
-                                    text: 'สั่งจองและแจ้งโอนเงินสำเร็จเรียบร้อยครับ! ขอบคุณครับ',
-                                    confirmButtonColor: '#E62020'
-                                }).then(() => {
-                                    form.reset();
-                                    imagePreviewContainer.style.display = 'none';
-                                    window.location.reload();
-                                });
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error!', error);
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'ขัดข้อง',
-                                text: 'เกิดข้อผิดพลาดในการส่งข้อมูล กรุณาลองใหม่อีกครั้ง',
-                                confirmButtonColor: '#E62020'
-                            });
-                        })
-                        .finally(() => {
-                            btn.textContent = 'ดำเนินการสั่งจองสินค้า';
-                            btn.disabled = false;
-                        });
-                    };
+                    fetch('https://script.google.com/macros/s/AKfycbzXBleBPv-uXk_wIO554IVhL1WhbeeCMTOk8F3aTHpYp0pQdElMV9CHYeoupizD_7jz/exec', {
+                        method: 'POST', body: params
+                    }).then(() => {
+                        Swal.fire('สำเร็จ', 'สั่งจองเรียบร้อย', 'success').then(() => window.location.reload());
+                    }).catch(() => {
+                        alert('เกิดข้อผิดพลาด');
+                        btn.disabled = false;
+                    });
                 };
-                reader.readAsDataURL(file);
-            } else {
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'แจ้งเตือน',
-                    text: 'กรุณาแนบสลิปการโอนเงินด้วยครับ',
-                    confirmButtonColor: '#E62020'
-                });
-                btn.textContent = 'ดำเนินการสั่งจองสินค้า';
-                btn.disabled = false;
-            }
+            };
+            reader.readAsDataURL(file);
         });
     </script>
 </body>
